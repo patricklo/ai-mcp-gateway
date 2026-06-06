@@ -1,0 +1,61 @@
+{
+  "tools": [
+    {
+      "description": "获取公司雇员信息",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "xxxRequest01": {
+            "type": "object",
+            "properties": {
+              "city": {
+                "type": "string",
+                "description": "城市名称,如果是中文汉字请先转换为汉语拼音,例如北京:beijing"
+              },
+              "company": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "公司名称"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "公司类型"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type"
+                ],
+                "description": "公司信息,如果是中文汉字请先转换为汉语拼音,例如北京:jd/alibaba"
+              }
+            },
+            "required": [
+              "city",
+              "company"
+            ]
+          },
+          "xxxRequest02": {
+            "type": "object",
+            "properties": {
+              "employeeCount": {
+                "type": "string",
+                "description": "雇员姓名"
+              }
+            },
+            "required": [
+              "employeeCount"
+            ]
+          }
+        },
+        "required": [
+          "xxxRequest01",
+          "xxxRequest02"
+        ],
+        "type": "object"
+      },
+      "name": "getCompanyEmployee"
+    }
+  ]
+}

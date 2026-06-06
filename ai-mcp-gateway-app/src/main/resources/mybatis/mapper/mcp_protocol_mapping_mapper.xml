@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bugstack.ai.infrastructure.dao.IMcpProtocolMappingDao">
+
+    <resultMap id="McpProtocolMappingMap" type="cn.bugstack.ai.infrastructure.dao.po.McpProtocolMappingPO">
+        <id column="id" property="id"/>
+        <result column="gateway_id" property="gatewayId"/>
+        <result column="tool_id" property="toolId"/>
+        <result column="mapping_type" property="mappingType"/>
+        <result column="parent_path" property="parentPath"/>
+        <result column="field_name" property="fieldName"/>
+        <result column="mcp_path" property="mcpPath"/>
+        <result column="mcp_type" property="mcpType"/>
+        <result column="mcp_desc" property="mcpDesc"/>
+        <result column="is_required" property="isRequired"/>
+        <result column="http_path" property="httpPath"/>
+        <result column="http_location" property="httpLocation"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpProtocolMappingPO"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO mcp_protocol_mapping (gateway_id, tool_id, mapping_type, parent_path, field_name, mcp_path,
+        mcp_type, mcp_desc, is_required, http_path, http_location, sort_order)
+        VALUES (#{gatewayId}, #{toolId}, #{mappingType}, #{parentPath}, #{fieldName}, #{mcpPath}, #{mcpType},
+        #{mcpDesc}, #{isRequired}, #{httpPath}, #{httpLocation}, #{sortOrder})
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM mcp_protocol_mapping WHERE id = #{id}
+    </delete>
+
+    <update id="updateById" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpProtocolMappingPO">
+        UPDATE mcp_protocol_mapping
+        SET gateway_id = #{gatewayId},
+        tool_id = #{toolId},
+        mapping_type = #{mappingType},
+        parent_path = #{parentPath},
+        field_name = #{fieldName},
+        mcp_path = #{mcpPath},
+        mcp_type = #{mcpType},
+        mcp_desc = #{mcpDesc},
+        is_required = #{isRequired},
+        http_path = #{httpPath},
+        http_location = #{httpLocation},
+        sort_order = #{sortOrder},
+        update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="queryById" parameterType="java.lang.Long" resultMap="McpProtocolMappingMap">
+        SELECT id, gateway_id, tool_id, mapping_type, parent_path, field_name, mcp_path, mcp_type, mcp_desc,
+        is_required, http_path, http_location, sort_order, create_time, update_time
+        FROM mcp_protocol_mapping
+        WHERE id = #{id}
+    </select>
+
+    <select id="queryAll" resultMap="McpProtocolMappingMap">
+        SELECT id, gateway_id, tool_id, mapping_type, parent_path, field_name, mcp_path, mcp_type, mcp_desc,
+        is_required, http_path, http_location, sort_order, create_time, update_time
+        FROM mcp_protocol_mapping
+        ORDER BY id DESC
+    </select>
+
+    <select id="queryMcpGatewayToolConfigList" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpProtocolMappingPO"
+            resultMap="McpProtocolMappingMap">
+        SELECT id, gateway_id, tool_id, mapping_type, parent_path, field_name, mcp_path, mcp_type, mcp_desc,
+        is_required, sort_order
+        FROM mcp_protocol_mapping
+        WHERE gateway_id = #{gatewayId}
+        ORDER BY sort_order ASC
+    </select>
+
+</mapper>
+

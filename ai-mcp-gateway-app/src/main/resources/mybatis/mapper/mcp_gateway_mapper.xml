@@ -7,6 +7,7 @@
         <result column="gateway_id" property="gatewayId"/>
         <result column="gateway_name" property="gatewayName"/>
         <result column="gateway_desc" property="gatewayDesc"/>
+        <result column="version" property="version"/>
         <result column="status" property="status"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
@@ -14,8 +15,8 @@
 
     <insert id="insert" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayPO" useGeneratedKeys="true"
             keyProperty="id">
-        INSERT INTO mcp_gateway (gateway_id, gateway_name, gateway_desc, status)
-        VALUES (#{gatewayId}, #{gatewayName}, #{gatewayDesc}, #{status})
+        INSERT INTO mcp_gateway (gateway_id, gateway_name, gateway_desc, version, status)
+        VALUES (#{gatewayId}, #{gatewayName}, #{gatewayDesc}, #{version}, #{status})
     </insert>
 
     <delete id="deleteById" parameterType="java.lang.Long">
@@ -27,26 +28,27 @@
         SET gateway_id = #{gatewayId},
         gateway_name = #{gatewayName},
         gateway_desc = #{gatewayDesc},
+        version = #{version},
         status = #{status},
         update_time = NOW()
         WHERE id = #{id}
     </update>
 
     <select id="queryById" parameterType="java.lang.Long" resultMap="McpGatewayMap">
-        SELECT id, gateway_id, gateway_name, gateway_desc, status, create_time, update_time
+        SELECT id, gateway_id, gateway_name, gateway_desc, version, status, create_time, update_time
         FROM mcp_gateway
         WHERE id = #{id}
     </select>
 
     <select id="queryAll" resultMap="McpGatewayMap">
-        SELECT id, gateway_id, gateway_name, gateway_desc, status, create_time, update_time
+        SELECT id, gateway_id, gateway_name, gateway_desc, version, status, create_time, update_time
         FROM mcp_gateway
         ORDER BY id DESC
     </select>
 
     <select id="queryMcpGatewayByGatewayId" parameterType="java.lang.String"
             resultMap="McpGatewayMap">
-        SELECT id, gateway_id, gateway_name, gateway_desc, status
+        SELECT id, gateway_id, gateway_name, gateway_desc, version, status
         FROM mcp_gateway
         WHERE gateway_id = #{gatewayId}
     </select>

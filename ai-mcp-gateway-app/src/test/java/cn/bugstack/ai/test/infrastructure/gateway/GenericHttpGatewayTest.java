@@ -1,7 +1,7 @@
 package cn.bugstack.ai.test.infrastructure.gateway;
 
-import cn.bugstack.ai.infrastructure.dao.IMcpProtocolRegistryDao;
-import cn.bugstack.ai.infrastructure.dao.po.McpProtocolRegistryPO;
+import cn.bugstack.ai.infrastructure.dao.IMcpProtocolHttpDao;
+import cn.bugstack.ai.infrastructure.dao.po.McpProtocolHttpPO;
 import cn.bugstack.ai.infrastructure.gateway.GenericHttpGateway;
 import java.util.Map;
 
@@ -27,15 +27,15 @@ public class GenericHttpGatewayTest {
     private GenericHttpGateway gateway;
 
     @javax.annotation.Resource
-    private IMcpProtocolRegistryDao mcpProtocolRegistryDao;
+    private IMcpProtocolHttpDao mcpProtocolRegistryDao;
 
     @Test
     public void test_post() throws Exception {
-        McpProtocolRegistryPO mcpProtocolRegistryPO = mcpProtocolRegistryDao.queryById(1L);
+        McpProtocolHttpPO mcpProtocolHttpPO = mcpProtocolRegistryDao.queryById(1L);
 
-        String httpUrl = mcpProtocolRegistryPO.getHttpUrl();
-        String httpHeaders = mcpProtocolRegistryPO.getHttpHeaders();
-        Integer timeout = mcpProtocolRegistryPO.getTimeout();
+        String httpUrl = mcpProtocolHttpPO.getHttpUrl();
+        String httpHeaders = mcpProtocolHttpPO.getHttpHeaders();
+        Integer timeout = mcpProtocolHttpPO.getTimeout();
 
         // 1. 请求参数
         Map<String, Object> params = new java.util.HashMap<>();

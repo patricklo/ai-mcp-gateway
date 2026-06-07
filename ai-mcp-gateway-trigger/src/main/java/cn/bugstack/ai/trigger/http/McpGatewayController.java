@@ -94,7 +94,7 @@ public class McpGatewayController implements IMcpGatewayService {
      */
     @PostMapping(value = "{gatewayId}/mcp/sse", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<Void>> handleMessage(@PathVariable("gatewayId") String gatewayId,
-                                                    @RequestParam String sessionId,
+                                                    @RequestParam("sessionId") String sessionId,
                                                     @RequestBody String messageBody) {
         try {
             log.info("处理 MCP SSE 消息，gatewayId:{} sessionId:{} messageBody:{}", gatewayId, sessionId, messageBody);

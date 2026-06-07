@@ -1,7 +1,7 @@
 package cn.bugstack.ai.infrastructure.adapter.port;
 
 import cn.bugstack.ai.domain.session.adapter.port.ISessionPort;
-import cn.bugstack.ai.domain.session.model.valobj.gateway.McpGatewayProtocolConfigVO;
+import cn.bugstack.ai.domain.session.model.valobj.gateway.McpToolProtocolConfigVO;
 import cn.bugstack.ai.infrastructure.gateway.GenericHttpGateway;
 import cn.bugstack.ai.types.enums.ResponseCode;
 import cn.bugstack.ai.types.exception.AppException;
@@ -34,7 +34,7 @@ public class SessionPort implements ISessionPort {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public Object toolCall(McpGatewayProtocolConfigVO.HTTPConfig httpConfig, Object params) throws IOException {
+    public Object toolCall(McpToolProtocolConfigVO.HTTPConfig httpConfig, Object params) throws IOException {
         // 1. 构建请求头
         String httpHeadersJson = httpConfig.getHttpHeaders();
 

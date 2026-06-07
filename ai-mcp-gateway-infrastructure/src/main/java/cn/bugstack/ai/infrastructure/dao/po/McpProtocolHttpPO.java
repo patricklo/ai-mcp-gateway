@@ -5,38 +5,45 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Date;
 
 /**
- * MCP网关配置表
+ * MCP工具注册表
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class McpGatewayPO {
+public class McpProtocolHttpPO {
 
     /**
      * 主键ID
      */
     private Long id;
     /**
-     * 网关唯一标识
+     * 所属网关ID
      */
-    private String gatewayId;
+    private Long protocolId;
     /**
-     * 网关名称
+     * HTTP接口地址
      */
-    private String gatewayName;
+    private String httpUrl;
     /**
-     * 网关描述
+     * HTTP请求方法：GET/POST/PUT/DELETE
      */
-    private String gatewayDesc;
+    private String httpMethod;
     /**
-     * 协议版本
+     * HTTP请求头（JSON格式）
      */
-    private String version;
+    private String httpHeaders;
+    /**
+     * 超时时间（毫秒）
+     */
+    private Integer timeout;
+    /**
+     * 重试次数
+     */
+    private Integer retryTimes;
     /**
      * 状态：0-禁用，1-启用
      */

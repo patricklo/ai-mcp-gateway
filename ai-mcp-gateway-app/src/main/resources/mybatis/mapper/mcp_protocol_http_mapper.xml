@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bugstack.ai.infrastructure.dao.IMcpProtocolHttpDao">
+
+    <resultMap id="McpProtocolRegistryMap" type="cn.bugstack.ai.infrastructure.dao.po.McpProtocolHttpPO">
+        <id column="id" property="id"/>
+        <result column="protocol_id" property="protocolId"/>
+        <result column="http_url" property="httpUrl"/>
+        <result column="http_method" property="httpMethod"/>
+        <result column="http_headers" property="httpHeaders"/>
+        <result column="timeout" property="timeout"/>
+        <result column="retry_times" property="retryTimes"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpProtocolHttpPO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO mcp_protocol_http (protocol_id, http_url, http_method, http_headers, timeout, retry_times, status)
+        VALUES (#{protocolId}, #{httpUrl}, #{httpMethod}, #{httpHeaders}, #{timeout}, #{retryTimes}, #{status})
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM mcp_protocol_http WHERE id = #{id}
+    </delete>
+
+    <update id="updateById" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpProtocolHttpPO">
+        UPDATE mcp_protocol_http
+        SET protocol_id = #{protocolId},
+            http_url = #{httpUrl},
+            http_method = #{httpMethod},
+            http_headers = #{httpHeaders},
+            timeout = #{timeout},
+            retry_times = #{retryTimes},
+            status = #{status},
+            update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="queryById" parameterType="java.lang.Long" resultMap="McpProtocolRegistryMap">
+        SELECT id, protocol_id, http_url, http_method, http_headers, timeout, retry_times, status, create_time, update_time
+        FROM mcp_protocol_http
+        WHERE id = #{id}
+    </select>
+
+    <select id="queryAll" resultMap="McpProtocolRegistryMap">
+        SELECT id, protocol_id, http_url, http_method, http_headers, timeout, retry_times, status, create_time, update_time
+        FROM mcp_protocol_http
+        ORDER BY id DESC
+    </select>
+
+    <select id="queryMcpProtocolHttpByProtocolId" parameterType="java.lang.Long" resultMap="McpProtocolRegistryMap">
+        SELECT id, protocol_id, http_url, http_method, http_headers, timeout, retry_times, status, create_time, update_time
+        FROM mcp_protocol_http
+        WHERE protocol_id = #{protocolId}
+    </select>
+
+</mapper>
+

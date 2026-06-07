@@ -1,6 +1,6 @@
 package cn.bugstack.ai.domain.session.adapter.port;
 
-import cn.bugstack.ai.domain.session.model.valobj.gateway.McpGatewayProtocolConfigVO;
+import cn.bugstack.ai.domain.session.model.valobj.gateway.McpToolProtocolConfigVO;
 
 import java.io.IOException;
 
@@ -12,6 +12,6 @@ import java.io.IOException;
  */
 public interface ISessionPort {
 
-    Object toolCall(McpGatewayProtocolConfigVO.HTTPConfig httpConfig, Object params) throws IOException;
+    Object toolCall(McpToolProtocolConfigVO.HTTPConfig httpConfig, Object params) throws IOException;
 
 }

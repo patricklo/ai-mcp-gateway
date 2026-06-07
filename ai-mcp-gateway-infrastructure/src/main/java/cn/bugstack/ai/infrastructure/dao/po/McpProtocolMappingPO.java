@@ -22,13 +22,9 @@ public class McpProtocolMappingPO {
      */
     private Long id;
     /**
-     * 所属网关ID
+     * 协议ID
      */
-    private String gatewayId;
-    /**
-     * 所属工具ID
-     */
-    private Long toolId;
+    private Long protocolId;
     /**
      * 映射类型：request-请求参数映射，response-响应数据映射
      */
@@ -57,14 +53,6 @@ public class McpProtocolMappingPO {
      * 是否必填：0-否，1-是（用于生成required数组）
      */
     private Integer isRequired;
-    /**
-     * HTTP路径（JSON路径，如：company.name 或 data.result，object类型可为空）
-     */
-    private String httpPath;
-    /**
-     * HTTP位置：body/query/path/header（仅对request类型有效）
-     */
-    private String httpLocation;
     /**
      * 排序顺序（同级字段排序）
      */

@@ -28,23 +28,13 @@ public class McpGatewayConfigVO {
     private String gatewayName;
 
     /**
-     * 工具ID
+     * 网关描述
      */
-    private Long toolId;
+    private String gatewayDesc;
 
     /**
-     * 工具名称
+     * 协议版本
      */
-    private String toolName;
-
-    /**
-     * 工具描述
-     */
-    private String toolDesc;
-
-    /**
-     * 工具版本
-     */
-    private String toolVersion;
+    private String version;
 
 }

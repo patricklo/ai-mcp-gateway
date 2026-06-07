@@ -67,7 +67,7 @@ public class InitializeHandler implements IRequestHandler {
         McpSchemaVO.InitializeRequest initializeRequest = McpSchemaVO.unmarshalFrom(message.params(), new TypeReference<>() {
         });
 
-        // 2. 查询配置 todo 后续拆分，这部分只查询网关配置，不使用工具配置信息
+        // 2. 查询配置
         McpGatewayConfigVO mcpGatewayConfigVO = repository.queryMcpGatewayConfigByGatewayId(gatewayId);
 
         // 3. 组装信息
@@ -78,8 +78,8 @@ public class InitializeHandler implements IRequestHandler {
                         new McpSchemaVO.ServerCapabilities.PromptCapabilities(true),
                         new McpSchemaVO.ServerCapabilities.ResourceCapabilities(false, true),
                         new McpSchemaVO.ServerCapabilities.ToolCapabilities(true)),
-                new McpSchemaVO.Implementation(mcpGatewayConfigVO.getToolName(), mcpGatewayConfigVO.getToolVersion()),
-                mcpGatewayConfigVO.getToolDesc()
+                new McpSchemaVO.Implementation(mcpGatewayConfigVO.getGatewayName(), mcpGatewayConfigVO.getVersion()),
+                mcpGatewayConfigVO.getGatewayDesc()
         );
 
         // 4. 返回结果

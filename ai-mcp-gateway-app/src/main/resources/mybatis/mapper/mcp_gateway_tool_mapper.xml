@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bugstack.ai.infrastructure.dao.IMcpGatewayToolDao">
+
+    <resultMap id="McpGatewayToolMap" type="cn.bugstack.ai.infrastructure.dao.po.McpGatewayToolPO">
+        <id column="id" property="id"/>
+        <result column="gateway_id" property="gatewayId"/>
+        <result column="tool_id" property="toolId"/>
+        <result column="tool_name" property="toolName"/>
+        <result column="tool_type" property="toolType"/>
+        <result column="tool_description" property="toolDescription"/>
+        <result column="tool_version" property="toolVersion"/>
+        <result column="protocol_id" property="protocolId"/>
+        <result column="protocol_type" property="protocolType"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="queryEffectiveTools" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayToolPO"
+            resultMap="McpGatewayToolMap">
+        SELECT id, gateway_id, tool_id, tool_name, tool_type, tool_description, tool_version, protocol_id, protocol_type,
+        create_time, update_time
+        FROM mcp_gateway_tool
+        WHERE gateway_id = #{gatewayId}
+    </select>
+
+    <select id="queryToolProtocolIdByToolName" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayToolPO" resultType="java.lang.Long">
+        SELECT protocol_id FROM mcp_gateway_tool
+        WHERE gateway_id = #{gatewayId} and tool_name = #{toolName}
+    </select>
+
+</mapper>
+

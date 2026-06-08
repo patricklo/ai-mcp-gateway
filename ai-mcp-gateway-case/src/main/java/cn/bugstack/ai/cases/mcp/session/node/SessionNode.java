@@ -18,10 +18,10 @@ import javax.annotation.Resource;
  * 2025/12/13 09:23
  */
 @Slf4j
-@Service
+@Service("mcpSessionSessionNode")
 public class SessionNode extends AbstractMcpSessionSupport {
 
-    @Resource
+    @Resource(name = "mcpSessionEndNode")
     private EndNode endNode;
 
     @Override
@@ -29,7 +29,7 @@ public class SessionNode extends AbstractMcpSessionSupport {
         log.info("创建会话-SessionNode:{}", requestParameter);
 
         // 创建会话服务
-        SessionConfigVO sessionConfigVO = sessionManagementService.createSession(requestParameter);
+        SessionConfigVO sessionConfigVO = sessionManagementService.createSession(requestParameter, dynamicContext.getApiKey());
 
         // 写入上下文中
         dynamicContext.setSessionConfigVO(sessionConfigVO);

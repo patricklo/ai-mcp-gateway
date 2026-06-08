@@ -17,10 +17,10 @@ import javax.annotation.Resource;
  * 2025/12/13 09:10
  */
 @Slf4j
-@Service
+@Service("mcpSessionRootNode")
 public class RootNode extends AbstractMcpSessionSupport {
 
-    @Resource
+    @Resource(name = "mcpSessionVerifyNode")
     private VerifyNode verifyNode;
 
     @Override

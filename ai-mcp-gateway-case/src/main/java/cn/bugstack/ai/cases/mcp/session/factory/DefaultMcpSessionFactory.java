@@ -22,7 +22,7 @@ import javax.annotation.Resource;
 @Service
 public class DefaultMcpSessionFactory {
 
-    @Resource
+    @Resource(name = "mcpSessionRootNode")
     private RootNode rootNode;
 
     public StrategyHandler<String, DefaultMcpSessionFactory.DynamicContext, Flux<ServerSentEvent<String>>> strategyHandler() {
@@ -34,6 +34,9 @@ public class DefaultMcpSessionFactory {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class DynamicContext {
+
+        private String apiKey;
+
         private SessionConfigVO sessionConfigVO;
     }
 

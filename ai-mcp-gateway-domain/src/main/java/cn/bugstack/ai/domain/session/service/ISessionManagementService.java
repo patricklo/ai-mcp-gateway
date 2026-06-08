@@ -14,7 +14,7 @@ public interface ISessionManagementService {
      * 创建回话
      * @return 会话配置
      */
-    SessionConfigVO createSession(String gatewayId);
+    SessionConfigVO createSession(String gatewayId, String apiKey);
 
     /**
      * 删除回话

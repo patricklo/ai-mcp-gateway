@@ -1,14 +1,19 @@
 package cn.bugstack.ai.trigger.http;
 
 import cn.bugstack.ai.api.IMcpGatewayService;
+import cn.bugstack.ai.cases.mcp.IMcpMessageService;
 import cn.bugstack.ai.cases.mcp.IMcpSessionService;
+import cn.bugstack.ai.domain.session.model.entity.HandleMessageCommandEntity;
 import cn.bugstack.ai.domain.session.model.valobj.McpSchemaVO;
 import cn.bugstack.ai.domain.session.model.valobj.SessionConfigVO;
 import cn.bugstack.ai.domain.session.service.ISessionManagementService;
 import cn.bugstack.ai.domain.session.service.ISessionMessageService;
 import cn.bugstack.ai.types.enums.ResponseCode;
+import cn.bugstack.ai.api.response.Response;
 import cn.bugstack.ai.types.exception.AppException;
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,26 +41,22 @@ public class McpGatewayController implements IMcpGatewayService {
     @Resource
     private IMcpSessionService mcpSessionService;
 
-    // todo 暂时调用 domain 测试，后续调用 case 编排
     @Resource
-    private ISessionMessageService serviceMessageService;
-
-    @Resource
-    private ISessionManagementService sessionManagementService;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private IMcpMessageService mcpMessageService;
 
     /**
      * 处理 sse 连接，创建会话
      * <br/>
-     * <a href="http://localhost:8777/api-gateway/test10001/mcp/sse">http://localhost:8777/api-gateway/test10001/mcp/sse</a>
+     * <a href="http://localhost:8777/api-gateway/gateway_001/mcp/sse">http://localhost:8777/api-gateway/gateway_001/mcp/sse</a>
+     * <br/>
+     * <a href="http://localhost:8777/api-gateway/gateway_001/mcp/sse?api_key=gw-lf3HFzlJCdnrYl20oHbd5lJQxE7GWz8wjsSgjDZfctJNV8s5">http://localhost:8777/api-gateway/gateway_001/mcp/sse?api_key=gw-lf3HFzlJCdnrYl20oHbd5lJQxE7GWz8wjsSgjDZfctJNV8s5</a>
      *
      * @param gatewayId 网关ID
      */
     @GetMapping(value = "{gatewayId}/mcp/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Override
-    public Flux<ServerSentEvent<String>> handleSseConnection(@PathVariable("gatewayId") String gatewayId) throws Exception {
+    public Flux<ServerSentEvent<String>> handleSseConnection(
+            @PathVariable("gatewayId") String gatewayId, @RequestParam("api_key") String apiKey) throws Exception {
         try {
             log.info("建立 MCP SSE 连接，gatewayId:{}", gatewayId);
             if (StringUtils.isBlank(gatewayId)) {
@@ -63,7 +64,17 @@ public class McpGatewayController implements IMcpGatewayService {
                 throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
             }
 
-            return mcpSessionService.createMcpSession(gatewayId);
+            return mcpSessionService.createMcpSession(gatewayId, apiKey);
+        } catch (AppException e) {
+            log.error("建立 MCP SSE 连接拒绝，gatewayId: {}", gatewayId, e);
+            return Flux.just(ServerSentEvent.<String>builder()
+                    .id(UUID.randomUUID().toString())
+                    .event("error")
+                    .data(JSON.toJSONString(Response.<String>builder()
+                            .code(e.getCode())
+                            .info(e.getInfo())
+                            .build()))
+                    .build());
         } catch (Exception e) {
             log.error("建立 MCP SSE 连接失败，gatewayId: {}", gatewayId, e);
             throw e;
@@ -95,30 +106,19 @@ public class McpGatewayController implements IMcpGatewayService {
     @PostMapping(value = "{gatewayId}/mcp/sse", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<Void>> handleMessage(@PathVariable("gatewayId") String gatewayId,
                                                     @RequestParam("sessionId") String sessionId,
+                                                    @RequestParam("api_key") String apiKey,
                                                     @RequestBody String messageBody) {
         try {
-            log.info("处理 MCP SSE 消息，gatewayId:{} sessionId:{} messageBody:{}", gatewayId, sessionId, messageBody);
-
-            SessionConfigVO session = sessionManagementService.getSession(sessionId);
-            if (null == session) {
-                log.warn("会话不存在或已过期，gatewayId:{} sessionId:{}", gatewayId, sessionId);
-                return Mono.just(ResponseEntity.notFound().build());
+            log.info("处理 MCP SSE 消息，gatewayId:{} apiKey:{} sessionId:{} messageBody:{}", gatewayId, apiKey, sessionId, messageBody);
+            if (StringUtils.isBlank(gatewayId) || StringUtils.isBlank(sessionId)) {
+                log.info("非法参数，gateway、sessionId is null");
+                throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
             }
 
-            McpSchemaVO.JSONRPCMessage jsonrpcMessage = McpSchemaVO.deserializeJsonRpcMessage(messageBody);
-            log.info("序列化消息:{}", jsonrpcMessage.jsonrpc());
+            HandleMessageCommandEntity commandEntity = new HandleMessageCommandEntity(gatewayId, apiKey, sessionId, messageBody);
+            ResponseEntity<Void> responseEntity = mcpMessageService.handleMessage(commandEntity);
 
-            // 暂时直接调用 domain，后续调整
-            McpSchemaVO.JSONRPCResponse jsonrpcResponse = serviceMessageService.processHandlerMessage(gatewayId, jsonrpcMessage);
-            if (null != jsonrpcResponse) {
-                String responseJson = objectMapper.writeValueAsString(jsonrpcResponse);
-                session.getSink().tryEmitNext(ServerSentEvent.<String>builder()
-                        .event("message")
-                        .data(responseJson)
-                        .build());
-            }
-
-            return Mono.just(ResponseEntity.accepted().build());
+            return Mono.just(responseEntity);
         } catch (Exception e) {
             log.error("处理 MCP SSE 消息失败，gatewayId:{} sessionId:{} messageBody:{}", gatewayId, sessionId, messageBody, e);
             return Mono.just(ResponseEntity.internalServerError().build());

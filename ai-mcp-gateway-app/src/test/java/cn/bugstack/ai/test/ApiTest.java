@@ -50,6 +50,8 @@ public class ApiTest {
     }
 
     /**
+     * http://appbuilder.baidu.com/v2/ai_search/mcp/sse?api_key=Bearer+bce-v3/ALTAK-3zODLb9qHozIftQlGwez5/2696e92781f5bf1ba1870e2958f239fd6dc822a4
+     *
      * 百度搜索MCP服务(url)；https://sai.baidu.com/zh/detail/e014c6ffd555697deabf00d058baf388
      * 百度搜索MCP服务(key - 可自行申请)；https://console.bce.baidu.com/iam/?_=1753597622044#/iam/apikey/list
      */

@@ -45,5 +45,17 @@
         ORDER BY id DESC
     </select>
 
+    <select id="queryMcpGatewayAuthPO" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayAuthPO" resultMap="McpGatewayAuthMap">
+        SELECT id, gateway_id, api_key, rate_limit, expire_time, status
+        FROM mcp_gateway_auth
+        WHERE gateway_id = #{gatewayId} and api_key = #{apiKey}
+    </select>
+
+    <select id="queryEffectiveGatewayAuthCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM mcp_gateway_auth
+        WHERE gateway_id = #{gatewayId} and status = 1
+    </select>
+
 </mapper>
 

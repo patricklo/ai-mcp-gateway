@@ -1,5 +1,6 @@
 package cn.bugstack.ai.domain.session.service;
 
+import cn.bugstack.ai.domain.session.model.entity.HandleMessageCommandEntity;
 import cn.bugstack.ai.domain.session.model.valobj.McpSchemaVO;
 
 /**
@@ -11,5 +12,7 @@ import cn.bugstack.ai.domain.session.model.valobj.McpSchemaVO;
 public interface ISessionMessageService {
 
     McpSchemaVO.JSONRPCResponse processHandlerMessage(String gatewayId, McpSchemaVO.JSONRPCMessage message);
+
+    McpSchemaVO.JSONRPCResponse processHandlerMessage(HandleMessageCommandEntity commandEntity);
 
 }

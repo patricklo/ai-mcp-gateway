@@ -15,10 +15,11 @@ public interface IMcpGatewayService {
 
     /**
      * 建立 SSE 连接
+     *
      * @param gatewayId 网关ID
      * @return 流式响应
      */
-    Flux<ServerSentEvent<String>> handleSseConnection(String gatewayId) throws Exception;
+    Flux<ServerSentEvent<String>> handleSseConnection(String gatewayId, String apiKey) throws Exception;
 
     /**
      * 处理 SSE 消息
@@ -27,6 +28,6 @@ public interface IMcpGatewayService {
      * @param messageBody 请求消息
      * @return 响应结果
      */
-    Mono<ResponseEntity<Void>> handleMessage(String gatewayId, String sessionId, String messageBody);
+    Mono<ResponseEntity<Void>> handleMessage(String gatewayId, String apiKey, String sessionId, String messageBody);
 
 }

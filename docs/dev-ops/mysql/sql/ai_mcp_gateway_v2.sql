@@ -7,7 +7,7 @@
 #
 # 主机: 127.0.0.1 (MySQL 8.0.42)
 # 数据库: ai_mcp_gateway_v2
-# 生成时间: 2026-02-01 11:57:07 +0000
+# 生成时间: 2026-02-23 01:26:00 +0000
 # ************************************************************
 
 
@@ -33,6 +33,7 @@ CREATE TABLE `mcp_gateway` (
   `gateway_name` varchar(128) NOT NULL COMMENT '网关名称',
   `gateway_desc` varchar(512) DEFAULT NULL COMMENT '网关描述',
   `version` varchar(16) DEFAULT NULL COMMENT '网关版本',
+  `auth` tinyint(1) DEFAULT '0' COMMENT '状态：0-不校验，1-强校验',
   `status` tinyint(1) NOT NULL DEFAULT '1' COMMENT '状态：0-禁用，1-启用',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -44,9 +45,9 @@ CREATE TABLE `mcp_gateway` (
 LOCK TABLES `mcp_gateway` WRITE;
 /*!40000 ALTER TABLE `mcp_gateway` DISABLE KEYS */;
 
-INSERT INTO `mcp_gateway` (`id`, `gateway_id`, `gateway_name`, `gateway_desc`, `version`, `status`, `create_time`, `update_time`)
+INSERT INTO `mcp_gateway` (`id`, `gateway_id`, `gateway_name`, `gateway_desc`, `version`, `auth`, `status`, `create_time`, `update_time`)
 VALUES
-	(1,'gateway_001','员工信息查询网关','用于查询公司员工信息的MCP网关',NULL,1,'2026-01-02 13:10:19','2026-01-02 13:10:19');
+	(1,'gateway_001','员工信息查询网关','用于查询公司员工信息的MCP网关','1.0.0',0,1,'2026-01-02 13:10:19','2026-02-03 08:37:09');
 
 /*!40000 ALTER TABLE `mcp_gateway` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -67,9 +68,7 @@ CREATE TABLE `mcp_gateway_auth` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_user_gateway` (`gateway_id`),
-  KEY `idx_gateway_id` (`gateway_id`),
-  KEY `idx_api_key` (`api_key`)
+  UNIQUE KEY `uq_api_key` (`api_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户网关权限表';
 
 LOCK TABLES `mcp_gateway_auth` WRITE;
@@ -77,7 +76,12 @@ LOCK TABLES `mcp_gateway_auth` WRITE;
 
 INSERT INTO `mcp_gateway_auth` (`id`, `gateway_id`, `api_key`, `rate_limit`, `expire_time`, `status`, `create_time`, `update_time`)
 VALUES
-	(1,'gateway_001','RS590LKPOD8877DDLMFKS4',1000,'2029-01-02 16:44:19',1,'2026-01-02 16:44:19','2026-01-02 16:44:34');
+	(1,'gateway_001','RS590LKPOD8877DDLMFKS4',1000,'2029-01-02 16:44:19',1,'2026-01-02 16:44:19','2026-01-02 16:44:34'),
+	(2,'gateway_001','gw-Otg00s8E5eqMuBiXnxckSHJc',10,'2026-02-22 06:03:24',1,'2026-02-22 14:03:24','2026-02-23 09:22:40'),
+	(4,'gateway_001','gw-lf3HFzlJCdnrYl20oHbd5lJQxE7GWz8wjsSgjDZfctJNV8s5',360000,'2099-02-24 07:05:45',1,'2026-02-22 14:05:44','2026-02-23 09:23:37'),
+	(5,'gateway_001','gw-SP0i5ztXV4QxSmau0GbuH1NNW4A0MEipBhklEeQ15cgUA2kI',10,'2026-02-24 10:08:12',1,'2026-02-22 18:08:11','2026-02-23 09:22:41'),
+	(6,'gateway_001','gw-o4L3EUQRsu5XHUU9EfKuDC3op6znKtCFRs34DFBVjoBIYXyv',10,'2026-02-24 10:08:27',1,'2026-02-22 18:08:27','2026-02-23 09:22:42'),
+	(7,'gateway_001','gw-GPJBQHFeBWVMSGASFii5xtsmlHF5SjURFwh7C7yGRP3UtVoy',10,'2026-02-25 01:23:57',1,'2026-02-23 09:23:57','2026-02-23 09:23:57');
 
 /*!40000 ALTER TABLE `mcp_gateway_auth` ENABLE KEYS */;
 UNLOCK TABLES;

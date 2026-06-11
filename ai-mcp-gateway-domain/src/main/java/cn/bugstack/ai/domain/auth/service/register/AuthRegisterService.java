@@ -10,11 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
- * 权限注册服务
+ * 认证服务注册
  *
  * @author xiaofuge bugstack.cn @小傅哥
- * 2026/2/22 10:18
+ * 2026/3/13 08:35
  */
 @Slf4j
 @Service
@@ -24,7 +26,7 @@ public class AuthRegisterService implements IAuthRegisterService {
     private IAuthRepository repository;
 
     @Override
-    public String register(RegisterCommandEntity commandEntity) {
+    public void register(RegisterCommandEntity commandEntity) {
         // 1. 生成 API Key | gw 网关缩写，方便区分
         String apiKey = "gw-" + RandomStringUtils.randomAlphanumeric(48);
 
@@ -38,10 +40,12 @@ public class AuthRegisterService implements IAuthRegisterService {
                 .build();
 
         // 3. 保存数据
-        repository.insert(mcpGatewayAuthVO);
+        repository.saveGatewayAuth(mcpGatewayAuthVO);
+    }
 
-        // 4. 返回结果
-        return apiKey;
+    @Override
+    public void deleteGatewayAuth(String gatewayId) {
+        repository.deleteGatewayAuth(gatewayId);
     }
 
 }

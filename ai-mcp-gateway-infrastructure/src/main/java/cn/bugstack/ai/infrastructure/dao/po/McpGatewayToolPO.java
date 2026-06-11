@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import cn.bugstack.ai.infrastructure.dao.po.base.BasePagePO;
 
 import java.util.Date;
 
@@ -17,7 +18,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class McpGatewayToolPO {
+public class McpGatewayToolPO extends BasePagePO {
 
     /**
      * 自增ID

@@ -1,0 +1,159 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "MCP Server Test API",
+    "description": "AI MCP Server 测试接口文档",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8701",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "测试服务",
+      "description": "公司员工信息查询接口"
+    }
+  ],
+  "paths": {
+    "/api/v1/mcp/get_company_employee": {
+      "post": {
+        "tags": [
+          "测试服务"
+        ],
+        "summary": "获取公司员工信息",
+        "description": "根据城市与公司信息返回员工工资与工时",
+        "operationId": "getCompanyEmployee",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/XxxRequest01"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/XxxResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/mcp/query-by-id": {
+      "get": {
+        "tags": [
+          "测试服务"
+        ],
+        "operationId": "queryAiClientById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Company": {
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "type": {
+            "type": "string",
+            "description": "公司类型"
+          }
+        },
+        "description": "公司信息"
+      },
+      "XxxRequest01": {
+        "required": [
+          "city",
+          "company"
+        ],
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string",
+            "description": "城市名称(拼音),例如: beijing"
+          },
+          "company": {
+            "$ref": "#/components/schemas/Company"
+          }
+        },
+        "description": "公司员工信息查询请求"
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "用户ID"
+          },
+          "userName": {
+            "type": "string",
+            "description": "用户名"
+          }
+        },
+        "description": "用户信息"
+      },
+      "XxxResponse": {
+        "required": [
+          "dayManHour",
+          "salary",
+          "user"
+        ],
+        "type": "object",
+        "properties": {
+          "salary": {
+            "type": "string",
+            "description": "工资"
+          },
+          "dayManHour": {
+            "type": "string",
+            "description": "工时"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "description": "公司员工信息查询响应"
+      }
+    }
+  }
+}

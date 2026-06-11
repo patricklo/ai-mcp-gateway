@@ -12,11 +12,19 @@ public interface IMcpGatewayAuthDao {
 
     int deleteById(Long id);
 
+    int deleteByGatewayId(String gatewayId);
+
     int updateById(McpGatewayAuthPO po);
+
+    int updateByGatewayId(McpGatewayAuthPO po);
 
     McpGatewayAuthPO queryById(Long id);
 
     List<McpGatewayAuthPO> queryAll();
+
+    List<McpGatewayAuthPO> queryAuthList(McpGatewayAuthPO query);
+
+    Long queryAuthListCount(McpGatewayAuthPO query);
 
     McpGatewayAuthPO queryMcpGatewayAuthPO(McpGatewayAuthPO req);
 

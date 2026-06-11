@@ -12,12 +12,16 @@ import cn.bugstack.ai.domain.auth.model.valobj.enums.AuthStatusEnum;
  */
 public interface IAuthRepository {
 
+    void saveGatewayAuth(McpGatewayAuthVO mcpGatewayAuthVO);
+
+    boolean validate(String gatewayId, String apiKey);
+
     int queryEffectiveGatewayAuthCount(String gatewayId);
 
     McpGatewayAuthVO queryEffectiveGatewayAuthInfo(LicenseCommandEntity commandEntity);
 
-    void insert(McpGatewayAuthVO mcpGatewayAuthVO);
-
     AuthStatusEnum.GatewayConfig queryGatewayAuthStatus(String gatewayId);
+
+    void deleteGatewayAuth(String gatewayId);
 
 }

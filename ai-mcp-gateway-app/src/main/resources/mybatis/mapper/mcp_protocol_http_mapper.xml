@@ -24,6 +24,10 @@
         DELETE FROM mcp_protocol_http WHERE id = #{id}
     </delete>
 
+    <delete id="deleteByProtocolId" parameterType="java.lang.Long">
+        DELETE FROM mcp_protocol_http WHERE protocol_id = #{protocolId}
+    </delete>
+
     <update id="updateById" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpProtocolHttpPO">
         UPDATE mcp_protocol_http
         SET protocol_id = #{protocolId},
@@ -35,6 +39,18 @@
             status = #{status},
             update_time = NOW()
         WHERE id = #{id}
+    </update>
+
+    <update id="updateByProtocolId" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpProtocolHttpPO">
+        UPDATE mcp_protocol_http
+        SET http_url = #{httpUrl},
+            http_method = #{httpMethod},
+            http_headers = #{httpHeaders},
+            timeout = #{timeout},
+            retry_times = #{retryTimes},
+            status = #{status},
+            update_time = NOW()
+        WHERE protocol_id = #{protocolId}
     </update>
 
     <select id="queryById" parameterType="java.lang.Long" resultMap="McpProtocolRegistryMap">
@@ -53,6 +69,47 @@
         SELECT id, protocol_id, http_url, http_method, http_headers, timeout, retry_times, status, create_time, update_time
         FROM mcp_protocol_http
         WHERE protocol_id = #{protocolId}
+    </select>
+
+    <select id="queryListByProtocolIds" resultMap="McpProtocolRegistryMap">
+        SELECT id, protocol_id, http_url, http_method, http_headers, timeout,
+               create_time, update_time
+        FROM mcp_protocol_http
+        WHERE protocol_id IN
+        <foreach collection="list" item="protocolId" open="(" separator="," close=")">
+            #{protocolId}
+        </foreach>
+    </select>
+
+    <select id="queryProtocolList" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpProtocolHttpPO" resultMap="McpProtocolRegistryMap">
+        SELECT id, protocol_id, http_url, http_method, http_headers, timeout,
+               create_time, update_time
+        FROM mcp_protocol_http
+        <where>
+            <if test="protocolId != null">
+                AND protocol_id = #{protocolId}
+            </if>
+            <if test="httpUrl != null and httpUrl != ''">
+                AND http_url like concat('%', #{httpUrl}, '%')
+            </if>
+        </where>
+        ORDER BY update_time DESC
+        <if test="limitStart != null and limitCount != null">
+            LIMIT #{limitStart}, #{limitCount}
+        </if>
+    </select>
+
+    <select id="queryProtocolListCount" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpProtocolHttpPO" resultType="java.lang.Long">
+        SELECT count(id)
+        FROM mcp_protocol_http
+        <where>
+            <if test="protocolId != null">
+                AND protocol_id = #{protocolId}
+            </if>
+            <if test="httpUrl != null and httpUrl != ''">
+                AND http_url like concat('%', #{httpUrl}, '%')
+            </if>
+        </where>
     </select>
 
 </mapper>

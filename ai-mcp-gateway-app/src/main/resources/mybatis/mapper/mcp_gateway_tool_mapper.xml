@@ -16,6 +16,28 @@
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
+    <insert id="insert" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayToolPO">
+        INSERT INTO mcp_gateway_tool (gateway_id, tool_id, tool_name, tool_type, tool_description, tool_version, protocol_id, protocol_type)
+        VALUES (#{gatewayId}, #{toolId}, #{toolName}, #{toolType}, #{toolDescription}, #{toolVersion}, #{protocolId}, #{protocolType})
+        ON DUPLICATE KEY UPDATE
+        gateway_id = #{gatewayId},
+        tool_name = #{toolName},
+        tool_type = #{toolType},
+        tool_description = #{toolDescription},
+        tool_version = #{toolVersion},
+        protocol_id = #{protocolId},
+        protocol_type = #{protocolType},
+        update_time = NOW()
+    </insert>
+
+    <update id="updateProtocolByGatewayId" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayToolPO">
+        UPDATE mcp_gateway_tool
+        SET protocol_id = #{protocolId},
+        protocol_type = #{protocolType},
+        update_time = NOW()
+        WHERE gateway_id = #{gatewayId}
+    </update>
+
     <select id="queryEffectiveTools" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayToolPO"
             resultMap="McpGatewayToolMap">
         SELECT id, gateway_id, tool_id, tool_name, tool_type, tool_description, tool_version, protocol_id, protocol_type,
@@ -28,6 +50,71 @@
         SELECT protocol_id FROM mcp_gateway_tool
         WHERE gateway_id = #{gatewayId} and tool_name = #{toolName}
     </select>
+
+    <update id="updateGatewayToolProtocol" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayToolPO">
+        UPDATE mcp_gateway_tool
+        SET protocol_id = #{protocolId},
+        protocol_type = #{protocolType},
+        update_time = NOW()
+        WHERE gateway_id = #{gatewayId}
+        <if test="toolId != null">
+            AND tool_id = #{toolId}
+        </if>
+    </update>
+
+    <select id="queryListByGatewayId" parameterType="java.lang.String" resultMap="McpGatewayToolMap">
+        SELECT id, gateway_id, tool_id, tool_name, tool_type, tool_description, tool_version, protocol_id, protocol_type,
+               create_time, update_time
+        FROM mcp_gateway_tool
+        WHERE gateway_id = #{gatewayId}
+    </select>
+
+    <select id="queryToolList" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayToolPO" resultMap="McpGatewayToolMap">
+        SELECT id, gateway_id, tool_id, tool_name, tool_type, tool_description, tool_version, protocol_id, protocol_type,
+               create_time, update_time
+        FROM mcp_gateway_tool
+        <where>
+            <if test="gatewayId != null and gatewayId != ''">
+                AND gateway_id like concat('%', #{gatewayId}, '%')
+            </if>
+            <if test="toolId != null and toolId != ''">
+                AND tool_id like concat('%', #{toolId}, '%')
+            </if>
+            <if test="toolName != null and toolName != ''">
+                AND tool_name like concat('%', #{toolName}, '%')
+            </if>
+        </where>
+        ORDER BY update_time DESC
+        <if test="limitStart != null and limitCount != null">
+            LIMIT #{limitStart}, #{limitCount}
+        </if>
+    </select>
+
+    <select id="queryToolListCount" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayToolPO" resultType="java.lang.Long">
+        SELECT count(id)
+        FROM mcp_gateway_tool
+        <where>
+            <if test="gatewayId != null and gatewayId != ''">
+                AND gateway_id like concat('%', #{gatewayId}, '%')
+            </if>
+            <if test="toolId != null and toolId != ''">
+                AND tool_id like concat('%', #{toolId}, '%')
+            </if>
+            <if test="toolName != null and toolName != ''">
+                AND tool_name like concat('%', #{toolName}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="queryAll" resultMap="McpGatewayToolMap">
+        SELECT id, gateway_id, tool_id, tool_name, tool_type, tool_description, tool_version, protocol_id, protocol_type,
+        create_time, update_time
+        FROM mcp_gateway_tool
+    </select>
+
+    <delete id="deleteByToolId" parameterType="java.lang.Long">
+        DELETE FROM mcp_gateway_tool WHERE tool_id = #{toolId}
+    </delete>
 
 </mapper>
 

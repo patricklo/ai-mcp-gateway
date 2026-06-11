@@ -12,13 +12,21 @@ public interface IMcpProtocolHttpDao {
 
     int deleteById(Long id);
 
-    int updateById(McpProtocolHttpPO po);
+    int deleteByProtocolId(Long protocolId);
+
+    int updateByProtocolId(McpProtocolHttpPO po);
 
     McpProtocolHttpPO queryById(Long id);
 
     List<McpProtocolHttpPO> queryAll();
 
     McpProtocolHttpPO queryMcpProtocolHttpByProtocolId(Long protocolId);
+
+    List<McpProtocolHttpPO> queryListByProtocolIds(List<Long> protocolIds);
+
+    List<McpProtocolHttpPO> queryProtocolList(McpProtocolHttpPO query);
+
+    Long queryProtocolListCount(McpProtocolHttpPO query);
 
 }
 

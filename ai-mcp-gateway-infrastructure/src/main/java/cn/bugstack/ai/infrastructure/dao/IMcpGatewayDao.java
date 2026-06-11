@@ -14,11 +14,17 @@ public interface IMcpGatewayDao {
 
     int updateById(McpGatewayPO po);
 
+    int updateAuthStatusByGatewayId(McpGatewayPO po);
+
     McpGatewayPO queryById(Long id);
 
     List<McpGatewayPO> queryAll();
 
     McpGatewayPO queryMcpGatewayByGatewayId(String gatewayId);
+
+    List<McpGatewayPO> queryGatewayList(McpGatewayPO query);
+
+    Long queryGatewayListCount(McpGatewayPO query);
 
 }
 

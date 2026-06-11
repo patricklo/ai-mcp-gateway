@@ -12,6 +12,8 @@ public interface IMcpProtocolMappingDao {
 
     int deleteById(Long id);
 
+    int deleteByProtocolId(Long protocolId);
+
     int updateById(McpProtocolMappingPO po);
 
     McpProtocolMappingPO queryById(Long id);
@@ -19,6 +21,8 @@ public interface IMcpProtocolMappingDao {
     List<McpProtocolMappingPO> queryAll();
 
     List<McpProtocolMappingPO> queryMcpGatewayToolConfigListByProtocolId(Long protocolId);
+
+    List<McpProtocolMappingPO> queryListByProtocolIds(List<Long> protocolIds);
 
 }
 

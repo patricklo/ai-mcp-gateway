@@ -22,6 +22,10 @@
         DELETE FROM mcp_gateway_auth WHERE id = #{id}
     </delete>
 
+    <delete id="deleteByGatewayId" parameterType="java.lang.String">
+        DELETE FROM mcp_gateway_auth WHERE gateway_id = #{gatewayId}
+    </delete>
+
     <update id="updateById" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayAuthPO">
         UPDATE mcp_gateway_auth
         SET gateway_id = #{gatewayId},
@@ -31,6 +35,14 @@
             status = #{status},
             update_time = NOW()
         WHERE id = #{id}
+    </update>
+
+    <update id="updateByGatewayId" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayAuthPO">
+        UPDATE mcp_gateway_auth
+        SET rate_limit = #{rateLimit},
+            expire_time = #{expireTime},
+            update_time = NOW()
+        WHERE gateway_id = #{gatewayId}
     </update>
 
     <select id="queryById" parameterType="java.lang.Long" resultMap="McpGatewayAuthMap">
@@ -55,6 +67,31 @@
         SELECT count(*)
         FROM mcp_gateway_auth
         WHERE gateway_id = #{gatewayId} and status = 1
+    </select>
+
+    <select id="queryAuthList" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayAuthPO" resultMap="McpGatewayAuthMap">
+        SELECT id, gateway_id, api_key, rate_limit, expire_time,
+               create_time, update_time
+        FROM mcp_gateway_auth
+        <where>
+            <if test="gatewayId != null and gatewayId != ''">
+                AND gateway_id like concat('%', #{gatewayId}, '%')
+            </if>
+        </where>
+        ORDER BY update_time DESC
+        <if test="limitStart != null and limitCount != null">
+            LIMIT #{limitStart}, #{limitCount}
+        </if>
+    </select>
+
+    <select id="queryAuthListCount" parameterType="cn.bugstack.ai.infrastructure.dao.po.McpGatewayAuthPO" resultType="java.lang.Long">
+        SELECT count(id)
+        FROM mcp_gateway_auth
+        <where>
+            <if test="gatewayId != null and gatewayId != ''">
+                AND gateway_id like concat('%', #{gatewayId}, '%')
+            </if>
+        </where>
     </select>
 
 </mapper>

@@ -1,0 +1,202 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-3 mb-4 border-bottom">
+    <h1 class="page-title">网关列表</h1>
+    <div>
+        <button class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1 me-2" id="refreshGatewayList">
+            <i class="bi bi-arrow-clockwise"></i> 刷新数据
+        </button>
+        <button class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#gatewayConfigModal" id="addGatewayBtn">
+            <i class="bi bi-plus-lg"></i> 新增网关
+        </button>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form id="form-gateway-search" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label text-muted small mb-1">网关 ID</label>
+                <input type="text" class="form-control form-control-sm" id="search-gatewayId" placeholder="请输入网关 ID">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label text-muted small mb-1">网关名称</label>
+                <input type="text" class="form-control form-control-sm" id="search-gatewayName" placeholder="请输入网关名称">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary btn-sm me-2"><i class="bi bi-search"></i> 查询</button>
+                <button type="button" class="btn btn-light btn-sm" id="btn-reset-search"><i class="bi bi-arrow-counterclockwise"></i> 重置</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>网关ID</th>
+                        <th>网关名称</th>
+                        <th>描述</th>
+                        <th>版本</th>
+                        <th>认证校验</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="gatewayTableBody">
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                            加载中...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="card-footer bg-white py-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div class="text-muted small" id="pagination-info">
+                显示 0 到 0 条，共 0 条数据
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0" id="pagination-container">
+                    <!-- 分页按钮由 JS 动态生成 -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<!-- 网关基础配置模态框 -->
+<div class="modal fade" id="gatewayConfigModal" tabindex="-1" aria-labelledby="gatewayConfigModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gatewayConfigModalLabel"><i class="bi bi-pencil-square me-2"></i>网关基础配置</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="form-gateway-config">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">网关 ID <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-hash"></i></span>
+                                <input type="text" class="form-control" name="gatewayId" id="config-gatewayId" required placeholder="例如: gw-001">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <label class="form-label">网关名称 <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-tag"></i></span>
+                                <input type="text" class="form-control" name="gatewayName" id="config-gatewayName" required placeholder="例如: 核心业务网关">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">网关描述</label>
+                        <textarea class="form-control" name="gatewayDesc" id="config-gatewayDesc" rows="3" placeholder="输入关于该网关的详细描述信息..."></textarea>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">版本号 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="version" id="config-version" required placeholder="1.0.0" value="1.0.0">
+                        </div>
+                        <div class="col-md-4 mt-3 mt-md-0">
+                            <label class="form-label">认证校验 (Auth)</label>
+                            <select class="form-select" name="auth" id="config-auth">
+                                <option value="1">启用 (1)</option>
+                                <option value="0">禁用 (0)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mt-3 mt-md-0">
+                            <label class="form-label">状态 (Status)</label>
+                            <select class="form-select" name="status" id="config-status">
+                                <option value="1">强校验 (1)</option>
+                                <option value="0">不校验 (0)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer px-0 pb-0 border-0">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">取消</button>
+                        <button type="submit" class="btn btn-primary d-flex align-items-center gap-1">
+                            <i class="bi bi-check2-circle"></i> 保存配置
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 关联工具列表模态框 -->
+<div class="modal fade" id="gatewayToolsModal" tabindex="-1" aria-labelledby="gatewayToolsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gatewayToolsModalLabel"><i class="bi bi-tools me-2"></i>关联工具列表</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 40px;"></th>
+                                <th>工具ID</th>
+                                <th>工具名称</th>
+                                <th>工具类型</th>
+                                <th>描述</th>
+                                <th>版本</th>
+                                <th>协议类型</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gatewayToolsTableBody">
+                            <!-- 数据由JS动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 认证配置查看模态框 -->
+<div class="modal fade" id="gatewayAuthViewModal" tabindex="-1" aria-labelledby="gatewayAuthViewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gatewayAuthViewModalLabel"><i class="bi bi-shield-lock me-2"></i>网关认证配置</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>API Key</th>
+                                <th>限流速率</th>
+                                <th>过期时间</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gatewayAuthViewTableBody">
+                            <!-- 数据由JS动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>

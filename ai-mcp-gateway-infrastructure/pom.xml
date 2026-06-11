@@ -40,6 +40,10 @@
             <groupId>cn.bugstack.ai</groupId>
             <artifactId>ai-mcp-gateway-domain</artifactId>
         </dependency>
+        <dependency>
+            <groupId>cn.bugstack.ai</groupId>
+            <artifactId>ai-mcp-gateway-types</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

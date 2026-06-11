@@ -35,11 +35,8 @@ public class AuthRegisterServiceTest {
         // 过期时间：2天
         commandEntity.setExpireTime(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 2));
 
-        String apiKey = authRegisterService.register(commandEntity);
-        log.info("注册结果 apiKey: {}", apiKey);
+        authRegisterService.register(commandEntity);
         
-        assertNotNull(apiKey);
-        assertTrue(apiKey.startsWith("gw-"));
     }
 
 }

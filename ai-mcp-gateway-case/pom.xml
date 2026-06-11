@@ -16,6 +16,10 @@
             <groupId>cn.bugstack.ai</groupId>
             <artifactId>ai-mcp-gateway-domain</artifactId>
         </dependency>
+        <dependency>
+            <groupId>cn.bugstack.ai</groupId>
+            <artifactId>ai-mcp-gateway-api</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>cn.bugstack.wrench</groupId>

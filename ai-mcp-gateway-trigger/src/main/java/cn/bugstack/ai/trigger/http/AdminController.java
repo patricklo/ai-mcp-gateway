@@ -4,10 +4,7 @@ import cn.bugstack.ai.api.IAdminService;
 import cn.bugstack.ai.api.dto.*;
 import cn.bugstack.ai.api.response.Response;
 import cn.bugstack.ai.api.response.ResponsePage;
-import cn.bugstack.ai.cases.admin.IAdminAuthService;
-import cn.bugstack.ai.cases.admin.IAdminGatewayService;
-import cn.bugstack.ai.cases.admin.IAdminManageService;
-import cn.bugstack.ai.cases.admin.IAdminProtocolService;
+import cn.bugstack.ai.cases.admin.*;
 import cn.bugstack.ai.domain.admin.model.entity.*;
 import cn.bugstack.ai.domain.auth.model.entity.RegisterCommandEntity;
 import cn.bugstack.ai.domain.gateway.model.entity.GatewayConfigCommandEntity;
@@ -19,6 +16,7 @@ import cn.bugstack.ai.domain.protocol.model.entity.AnalysisCommandEntity;
 import cn.bugstack.ai.domain.protocol.model.valobj.http.HTTPProtocolVO;
 import cn.bugstack.ai.types.enums.GatewayEnum;
 import cn.bugstack.ai.types.enums.ResponseCode;
+import com.alibaba.fastjson.JSON;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +44,8 @@ public class AdminController implements IAdminService {
     private IAdminProtocolService adminProtocolService;
     @Resource
     private IAdminManageService adminManageService;
+    @Resource
+    private IAdminLLMService adminLLMService;
 
     @RequestMapping(value = "save_gateway_config", method = RequestMethod.POST)
     @Override
@@ -191,7 +191,7 @@ public class AdminController implements IAdminService {
                     .endpoints(requestDTO.getEndpoints())
                     .build();
             List<cn.bugstack.ai.domain.protocol.model.valobj.http.HTTPProtocolVO> httpProtocolVOS = adminProtocolService.analysisProtocol(commandEntity);
-            
+
             List<GatewayProtocolDTO> dtoList = httpProtocolVOS.stream().map(e -> GatewayProtocolDTO.builder()
                     .httpUrl(e.getHttpUrl())
                     .httpMethod(e.getHttpMethod())
@@ -207,7 +207,7 @@ public class AdminController implements IAdminService {
                             .isRequired(m.getIsRequired())
                             .build()).collect(Collectors.toList()))
                     .build()).collect(Collectors.toList());
-            
+
             log.info("解析网关协议配置完成 size: {}", dtoList.size());
             return Response.<List<GatewayProtocolDTO>>builder()
                     .code(ResponseCode.SUCCESS.getCode())
@@ -282,16 +282,16 @@ public class AdminController implements IAdminService {
     @Override
     public ResponsePage<List<GatewayConfigDTO>> queryGatewayConfigPage(GatewayConfigQueryDTO queryDTO) {
         try {
-            log.info("查询网关配置分页开始 gatewayId: {}, gatewayName: {}, page: {}, rows: {}", 
-                     queryDTO.getGatewayId(), queryDTO.getGatewayName(), queryDTO.getPage(), queryDTO.getRows());
-            
+            log.info("查询网关配置分页开始 gatewayId: {}, gatewayName: {}, page: {}, rows: {}",
+                    queryDTO.getGatewayId(), queryDTO.getGatewayName(), queryDTO.getPage(), queryDTO.getRows());
+
             GatewayConfigQueryEntity queryEntity = GatewayConfigQueryEntity.builder()
                     .gatewayId(queryDTO.getGatewayId())
                     .gatewayName(queryDTO.getGatewayName())
                     .page(queryDTO.getPage() == null ? 1 : queryDTO.getPage())
                     .rows(queryDTO.getRows() == null ? 10 : queryDTO.getRows())
                     .build();
-                    
+
             GatewayConfigPageEntity pageEntity = adminManageService.queryGatewayConfigPage(queryEntity);
             List<GatewayConfigDTO> dtoList = pageEntity.getDataList().stream().map(e -> GatewayConfigDTO.builder()
                     .gatewayId(e.getGatewayId())
@@ -352,16 +352,16 @@ public class AdminController implements IAdminService {
     @Override
     public ResponsePage<List<GatewayToolConfigDTO>> queryGatewayToolPage(GatewayToolQueryDTO queryDTO) {
         try {
-            log.info("查询网关工具分页开始 gatewayId: {}, toolId: {}, page: {}, rows: {}", 
-                     queryDTO.getGatewayId(), queryDTO.getToolId(), queryDTO.getPage(), queryDTO.getRows());
-            
+            log.info("查询网关工具分页开始 gatewayId: {}, toolId: {}, page: {}, rows: {}",
+                    queryDTO.getGatewayId(), queryDTO.getToolId(), queryDTO.getPage(), queryDTO.getRows());
+
             GatewayToolQueryEntity queryEntity = GatewayToolQueryEntity.builder()
                     .gatewayId(queryDTO.getGatewayId())
                     .toolId(queryDTO.getToolId())
                     .page(queryDTO.getPage() == null ? 1 : queryDTO.getPage())
                     .rows(queryDTO.getRows() == null ? 10 : queryDTO.getRows())
                     .build();
-                    
+
             GatewayToolPageEntity pageEntity = adminManageService.queryGatewayToolPage(queryEntity);
             List<GatewayToolConfigDTO> dtoList = pageEntity.getDataList().stream().map(e -> GatewayToolConfigDTO.builder()
                     .gatewayId(e.getGatewayId())
@@ -482,16 +482,16 @@ public class AdminController implements IAdminService {
     @Override
     public ResponsePage<List<GatewayProtocolDTO>> queryGatewayProtocolPage(GatewayProtocolQueryDTO queryDTO) {
         try {
-            log.info("查询网关协议分页开始 protocolId: {}, httpUrl: {}, page: {}, rows: {}", 
-                     queryDTO.getProtocolId(), queryDTO.getHttpUrl(), queryDTO.getPage(), queryDTO.getRows());
-            
+            log.info("查询网关协议分页开始 protocolId: {}, httpUrl: {}, page: {}, rows: {}",
+                    queryDTO.getProtocolId(), queryDTO.getHttpUrl(), queryDTO.getPage(), queryDTO.getRows());
+
             GatewayProtocolQueryEntity queryEntity = GatewayProtocolQueryEntity.builder()
                     .protocolId(queryDTO.getProtocolId())
                     .httpUrl(queryDTO.getHttpUrl())
                     .page(queryDTO.getPage() == null ? 1 : queryDTO.getPage())
                     .rows(queryDTO.getRows() == null ? 10 : queryDTO.getRows())
                     .build();
-                    
+
             GatewayProtocolPageEntity pageEntity = adminManageService.queryGatewayProtocolPage(queryEntity);
             List<GatewayProtocolDTO> dtoList = pageEntity.getDataList().stream().map(e -> GatewayProtocolDTO.builder()
                     .protocolId(e.getProtocolId())
@@ -614,15 +614,15 @@ public class AdminController implements IAdminService {
     @Override
     public ResponsePage<List<GatewayAuthDTO>> queryGatewayAuthPage(GatewayAuthQueryDTO queryDTO) {
         try {
-            log.info("查询网关认证配置分页开始 gatewayId: {}, page: {}, rows: {}", 
-                     queryDTO.getGatewayId(), queryDTO.getPage(), queryDTO.getRows());
-            
+            log.info("查询网关认证配置分页开始 gatewayId: {}, page: {}, rows: {}",
+                    queryDTO.getGatewayId(), queryDTO.getPage(), queryDTO.getRows());
+
             GatewayAuthQueryEntity queryEntity = GatewayAuthQueryEntity.builder()
                     .gatewayId(queryDTO.getGatewayId())
                     .page(queryDTO.getPage() == null ? 1 : queryDTO.getPage())
                     .rows(queryDTO.getRows() == null ? 10 : queryDTO.getRows())
                     .build();
-                    
+
             GatewayAuthPageEntity pageEntity = adminManageService.queryGatewayAuthPage(queryEntity);
             List<GatewayAuthDTO> dtoList = pageEntity.getDataList().stream().map(e -> GatewayAuthDTO.builder()
                     .gatewayId(e.getGatewayId())
@@ -646,6 +646,39 @@ public class AdminController implements IAdminService {
         }
     }
 
+    /**
+     * 根据网关ID查询该网关下的认证 Key 列表
+     *
+     * 说明：
+     * - 供前端网关测试页使用，通过 gatewayId 精确拉取可用的 apiKey 列表
+     * - 复用 adminManageService 进行查询，保持 DDD 分层：Trigger -> Case(Manage) -> Domain
+     */
+    @RequestMapping(value = "query_gateway_auth_list_by_gateway_id", method = RequestMethod.GET)
+    public Response<List<GatewayAuthDTO>> queryGatewayAuthListByGatewayId(@RequestParam String gatewayId) {
+        try {
+            log.info("根据网关ID查询网关认证列表开始 gatewayId: {}", gatewayId);
+            List<GatewayAuthConfigEntity> entities = adminManageService.queryGatewayAuthListByGatewayId(gatewayId);
+            List<GatewayAuthDTO> dtoList = entities.stream().map(e -> GatewayAuthDTO.builder()
+                    .gatewayId(e.getGatewayId())
+                    .apiKey(e.getApiKey())
+                    .rateLimit(e.getRateLimit())
+                    .expireTime(e.getExpireTime())
+                    .build()).collect(Collectors.toList());
+            log.info("根据网关ID查询网关认证列表完成 count: {}", dtoList.size());
+            return Response.<List<GatewayAuthDTO>>builder()
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .info(ResponseCode.SUCCESS.getInfo())
+                    .data(dtoList)
+                    .build();
+        } catch (Exception e) {
+            log.error("根据网关ID查询网关认证列表失败 gatewayId: {}", gatewayId, e);
+            return Response.<List<GatewayAuthDTO>>builder()
+                    .code(ResponseCode.UN_ERROR.getCode())
+                    .info(ResponseCode.UN_ERROR.getInfo())
+                    .build();
+        }
+    }
+
     @RequestMapping(value = "delete_gateway_auth", method = RequestMethod.POST)
     public Response<GatewayConfigResponseDTO> deleteGatewayAuth(@RequestParam String gatewayId) {
         try {
@@ -660,6 +693,30 @@ public class AdminController implements IAdminService {
         } catch (Exception e) {
             log.error("删除网关认证配置失败 gatewayId: {}", gatewayId, e);
             return Response.<GatewayConfigResponseDTO>builder()
+                    .code(ResponseCode.UN_ERROR.getCode())
+                    .info(ResponseCode.UN_ERROR.getInfo())
+                    .build();
+        }
+    }
+
+    @RequestMapping(value = "test_call_gateway", method = RequestMethod.POST)
+    @Override
+    public Response<GatewayLLMResponseDTO> testCallGateway(@RequestBody GatewayLLMRequestDTO requestDTO) {
+        try {
+            // 为了便于排查测试调用问题，这里额外打印 apiKey（auth 校验 Key）
+            log.info("测试请求网关服务开始 gatewayId: {} authApiKey: {} reqDTO:{}", requestDTO.getGatewayId(), requestDTO.getAuthApiKey(), JSON.toJSONString(requestDTO));
+
+            GatewayLLMResponseDTO responseDTO = adminLLMService.testCallGateway(requestDTO);
+            log.info("测试请求网关服务完成 gatewayId: {} authApiKey: {} resDTO:{}", requestDTO.getGatewayId(), requestDTO.getAuthApiKey(), JSON.toJSONString(responseDTO));
+
+            return Response.<GatewayLLMResponseDTO>builder()
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .info(ResponseCode.SUCCESS.getInfo())
+                    .data(responseDTO)
+                    .build();
+        } catch (Exception e) {
+            log.error("测试请求网关服务失败 gatewayId: {}", requestDTO.getGatewayId(), e);
+            return Response.<GatewayLLMResponseDTO>builder()
                     .code(ResponseCode.UN_ERROR.getCode())
                     .info(ResponseCode.UN_ERROR.getInfo())
                     .build();

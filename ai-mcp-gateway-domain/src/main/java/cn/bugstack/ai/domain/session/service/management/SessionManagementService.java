@@ -1,6 +1,7 @@
 package cn.bugstack.ai.domain.session.service.management;
 
 import cn.bugstack.ai.domain.session.model.valobj.SessionConfigVO;
+import cn.bugstack.ai.domain.session.model.valobj.enums.SessionTransportTypeEnumVO;
 import cn.bugstack.ai.domain.session.service.ISessionManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -47,28 +48,36 @@ public class SessionManagementService implements ISessionManagementService {
 
     @Override
     public SessionConfigVO createSession(String gatewayId, String apiKey) {
-        log.info("创建会话 gatewayId:{}", gatewayId);
+        return createSession(gatewayId, apiKey, SessionTransportTypeEnumVO.SSE);
+    }
+
+    @Override
+    public SessionConfigVO createSession(String gatewayId, String apiKey, SessionTransportTypeEnumVO transportType) {
+        SessionTransportTypeEnumVO sessionTransportType = transportType == null ? SessionTransportTypeEnumVO.SSE : transportType;
+        log.info("创建会话 gatewayId:{} transportType:{}", gatewayId, sessionTransportType.getCode());
 
         String sessionId = UUID.randomUUID().toString();
 
         Sinks.Many<ServerSentEvent<String>> sink = Sinks.many().multicast().onBackpressureBuffer();
 
-        // 发送端点消息 - 告知客户端消息请求地址（客户端第二次会使用 messageEndpoint 进行请求会话）
-        String messageEndpoint = "/api-gateway/" + gatewayId + "/mcp/sse?sessionId=" + sessionId;
-        if (StringUtils.isNoneBlank(apiKey)) {
-            messageEndpoint += "&api_key=" + apiKey;
-        }
+        // SSE 协议需要发送 endpoint 事件，Streamable HTTP 协议通过 Mcp-Session-Id 响应头返回会话，不发送 endpoint，避免破坏协议语义。
+        if (SessionTransportTypeEnumVO.SSE.equals(sessionTransportType)) {
+            String messageEndpoint = "/api-gateway/" + gatewayId + "/mcp/sse?sessionId=" + sessionId;
+            if (StringUtils.isNoneBlank(apiKey)) {
+                messageEndpoint += "&api_key=" + apiKey;
+            }
 
-        sink.tryEmitNext(ServerSentEvent.<String>builder()
-                .event("endpoint")
-                .data(messageEndpoint)
-                .build());
+            sink.tryEmitNext(ServerSentEvent.<String>builder()
+                    .event("endpoint")
+                    .data(messageEndpoint)
+                    .build());
+        }
 
         SessionConfigVO sessionConfigVO = new SessionConfigVO(sessionId, sink);
 
         activeSessions.put(sessionId, sessionConfigVO);
 
-        log.info("创建会话 gatewayId:{} sessionId:{},当前活跃会话数:{}", gatewayId, sessionId, activeSessions.size());
+        log.info("创建会话 gatewayId:{} sessionId:{} transportType:{},当前活跃会话数:{}", gatewayId, sessionId, sessionTransportType.getCode(), activeSessions.size());
 
         return sessionConfigVO;
     }

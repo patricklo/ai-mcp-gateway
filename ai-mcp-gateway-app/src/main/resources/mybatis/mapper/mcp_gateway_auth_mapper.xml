@@ -94,5 +94,13 @@
         </where>
     </select>
 
+    <!-- 根据网关ID精确查询认证列表，供网关测试页加载 Auth Key 使用 -->
+    <select id="queryListByGatewayId" parameterType="java.lang.String" resultMap="McpGatewayAuthMap">
+        SELECT id, gateway_id, api_key, rate_limit, expire_time, status, create_time, update_time
+        FROM mcp_gateway_auth
+        WHERE gateway_id = #{gatewayId}
+        ORDER BY update_time DESC
+    </select>
+
 </mapper>
 

@@ -2,10 +2,13 @@ package cn.bugstack.ai.domain.gateway.service.tool;
 
 import cn.bugstack.ai.domain.gateway.adapter.repository.IGatewayRepository;
 import cn.bugstack.ai.domain.gateway.model.entity.GatewayToolConfigCommandEntity;
+import cn.bugstack.ai.domain.gateway.model.valobj.GatewayToolConfigVO;
 import cn.bugstack.ai.domain.gateway.service.IGatewayToolConfigService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 网关工具配置服务实现
@@ -33,6 +36,11 @@ public class GatewayToolConfigService implements IGatewayToolConfigService {
     @Override
     public void deleteGatewayToolConfig(Long toolId) {
         repository.deleteGatewayToolConfig(toolId);
+    }
+
+    @Override
+    public List<GatewayToolConfigVO> queryGatewayToolConfigList(String gatewayId) {
+        return repository.queryGatewayToolConfigList(gatewayId);
     }
 
 }

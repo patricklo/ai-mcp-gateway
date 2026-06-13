@@ -2,6 +2,9 @@ package cn.bugstack.ai.domain.gateway.adapter.repository;
 
 import cn.bugstack.ai.domain.gateway.model.entity.GatewayConfigCommandEntity;
 import cn.bugstack.ai.domain.gateway.model.entity.GatewayToolConfigCommandEntity;
+import cn.bugstack.ai.domain.gateway.model.valobj.GatewayToolConfigVO;
+
+import java.util.List;
 
 /**
  * 网关仓储服务接口
@@ -20,6 +23,8 @@ public interface IGatewayRepository {
     void updateGatewayToolProtocol(GatewayToolConfigCommandEntity commandEntity);
 
     void deleteGatewayToolConfig(Long toolId);
+
+    List<GatewayToolConfigVO> queryGatewayToolConfigList(String gatewayId);
 
 }
 

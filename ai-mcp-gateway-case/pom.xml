@@ -16,10 +16,6 @@
             <groupId>cn.bugstack.ai</groupId>
             <artifactId>ai-mcp-gateway-domain</artifactId>
         </dependency>
-        <dependency>
-            <groupId>cn.bugstack.ai</groupId>
-            <artifactId>ai-mcp-gateway-api</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>cn.bugstack.wrench</groupId>
@@ -28,6 +24,10 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.bugstack.ai</groupId>
+            <artifactId>ai-mcp-gateway-api</artifactId>
         </dependency>
     </dependencies>
 

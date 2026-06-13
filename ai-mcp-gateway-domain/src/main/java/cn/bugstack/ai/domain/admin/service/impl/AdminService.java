@@ -91,4 +91,10 @@ public class AdminService implements IAdminService {
         return adminRepository.queryGatewayAuthPage(queryEntity);
     }
 
+    @Override
+    public List<GatewayAuthConfigEntity> queryGatewayAuthListByGatewayId(String gatewayId) {
+        // 直接委托给 Repository 层按网关ID查询，不在领域服务中做额外业务逻辑
+        return adminRepository.queryGatewayAuthListByGatewayId(gatewayId);
+    }
+
 }

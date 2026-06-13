@@ -1,0 +1,190 @@
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-3 mb-4 border-bottom">
+    <h1 class="page-title">网关测试</h1>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1" id="openHistoryBtn">
+            <i class="bi bi-clock-history"></i> 历史记录
+        </button>
+        <button class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1" id="refreshGatewayAndAuthBtn">
+            <i class="bi bi-arrow-clockwise"></i> 重新加载
+        </button>
+    </div>
+</div>
+
+<style>
+/* 页面填满高度，右侧对话区自适应 */
+.row.gateway-test-main {
+    min-height: 100vh;
+    display: flex;
+}
+.col-lg-8.mb-4 {
+    display: flex;
+    flex-direction: column;
+}
+.card.h-100 {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.card-body.gateway-chat-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #f8fafc;
+    padding: 1.25rem;
+}
+#chat-window {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+</style>
+
+<div class="row gateway-test-main">
+    <!-- 左侧：测试配置 -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="bi bi-sliders me-2"></i>测试配置</h5>
+            </div>
+            <div class="card-body">
+                <form id="form-gateway-llm-test">
+                    <!-- 网关选择 -->
+                    <div class="mb-3">
+                        <label class="form-label">选择网关 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="test-gatewayId" required>
+                            <option value="">加载中...</option>
+                        </select>
+                        <div class="form-text text-muted small" id="test-gatewayDesc">-</div>
+                    </div>
+
+                    <!-- MCP 协议类型选择 -->
+                    <div class="mb-3">
+                        <label class="form-label">MCP 协议类型 <span class="text-danger">*</span></label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="mcpType" id="mcpType-sse" value="sse" checked>
+                                <label class="form-check-label" for="mcpType-sse">SSE</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="mcpType" id="mcpType-streamable" value="streamable">
+                                <label class="form-check-label" for="mcpType-streamable">Streamable HTTP</label>
+                            </div>
+                        </div>
+                        <div class="form-text text-muted small">选择 MCP 传输协议类型，默认 SSE</div>
+                    </div>
+
+                    <!-- Auth Key 选择（根据网关是否开启认证动态显示） -->
+                    <div class="mb-3" id="auth-key-container" style="display: none;">
+                        <label class="form-label">Auth 校验 Key</label>
+                        <select class="form-select" id="test-apiKey">
+                            <option value="">请选择认证 Key...</option>
+                        </select>
+                        <div class="form-text text-muted small">如网关开启认证，请选择对应的认证 Key 进行测试</div>
+                    </div>
+
+                    <!-- 超时时间 -->
+                    <div class="mb-3">
+                        <label class="form-label">超时时间 (ms)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-clock"></i></span>
+                            <input type="number" class="form-control" id="test-timeout" value="3000" min="1000" max="60000" step="500">
+                            <button class="btn btn-outline-secondary" type="button" id="btn-reset-timeout" title="重置为默认值">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
+                        <div class="form-text text-muted small">范围: 1000-60000 ms，默认 3000 ms</div>
+                    </div>
+
+                    <!-- Reload 选择 -->
+                    <div class="mb-3 form-check form-switch">
+                        <input class="form-check-input" type="checkbox" checked id="test-reload">
+                        <label class="form-check-label" for="test-reload">协议变更后重新加载 LLM</label>
+                        <div class="form-text text-muted small">勾选后，本次调用会重新加载最新协议配置。</div>
+                    </div>
+
+                    <!-- 请求消息 -->
+                    <div class="mb-3">
+                        <label class="form-label">请求消息 (Message) <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="test-message" rows="6" required placeholder="请输入要发送的对话内容，例如：\n帮我总结一下今天的待办事项"></textarea>
+                    </div>
+
+                    <!-- 发送按钮 -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center gap-2" id="btn-send-test">
+                            <i class="bi bi-send"></i> 发送测试请求
+                        </button>
+                    </div>
+
+                    <!-- 快捷案例 -->
+                    <div class="mt-3">
+                        <label class="form-label text-muted small mb-2"><i class="bi bi-lightning-fill me-1"></i>快捷案例</label>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button type="button" class="btn btn-sm btn-outline-info btn-quick-case" data-message="你具备什么 mcp 工具能力">🔧 工具能力查询</button>
+                            <button type="button" class="btn btn-sm btn-outline-info btn-quick-case" data-message="获取公司雇员信息，信息如下； 城市；北京 公司；谷歌 雇员；小傅哥">👤 雇员信息查询</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧：测试结果（对话区） -->
+    <div class="col-lg-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-chat-dots me-2"></i>对话结果</h5>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small">响应耗时: <span id="response-time">-</span> ms</span>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-clear-result" title="清空结果">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body gateway-chat-body">
+                <div id="chat-window">
+                    <div class="text-center text-muted py-5" id="chat-empty-placeholder">
+                        <i class="bi bi-chat-square-text fs-3 d-block mb-2"></i>
+                        暂无对话记录，请配置参数后发送测试请求
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 历史记录模态框 -->
+<div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="historyModalLabel"><i class="bi bi-clock-history me-2"></i>测试历史记录</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 170px;">时间</th>
+                                <th style="width: 130px;">网关ID</th>
+                                <th>请求消息</th>
+                                <th style="width: 90px;">状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-3">暂无历史记录</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-outline-danger btn-sm" id="btn-clear-history">
+                    <i class="bi bi-trash me-1"></i> 清空历史
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

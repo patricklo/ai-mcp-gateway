@@ -41,4 +41,9 @@ public interface IAdminRepository {
 
     GatewayAuthPageEntity queryGatewayAuthPage(GatewayAuthQueryEntity queryEntity);
 
+    /**
+     * 根据网关ID查询该网关下的认证配置列表
+     */
+    List<GatewayAuthConfigEntity> queryGatewayAuthListByGatewayId(String gatewayId);
+
 }

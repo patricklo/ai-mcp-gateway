@@ -85,4 +85,9 @@ public class AdminManageService implements IAdminManageService {
         return adminService.queryGatewayAuthPage(queryEntity);
     }
 
+    @Override
+    public List<GatewayAuthConfigEntity> queryGatewayAuthListByGatewayId(String gatewayId) {
+        return adminService.queryGatewayAuthListByGatewayId(gatewayId);
+    }
+
 }

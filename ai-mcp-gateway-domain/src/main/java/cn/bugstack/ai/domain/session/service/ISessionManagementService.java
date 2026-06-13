@@ -1,6 +1,7 @@
 package cn.bugstack.ai.domain.session.service;
 
 import cn.bugstack.ai.domain.session.model.valobj.SessionConfigVO;
+import cn.bugstack.ai.domain.session.model.valobj.enums.SessionTransportTypeEnumVO;
 
 /**
  * 会话管理服务接口
@@ -11,10 +12,16 @@ import cn.bugstack.ai.domain.session.model.valobj.SessionConfigVO;
 public interface ISessionManagementService {
 
     /**
-     * 创建回话
+     * 创建回话，默认使用 SSE 传输协议，保持原有 SSE 逻辑兼容
      * @return 会话配置
      */
     SessionConfigVO createSession(String gatewayId, String apiKey);
+
+    /**
+     * 创建回话，按传输协议类型做兼容处理
+     * @return 会话配置
+     */
+    SessionConfigVO createSession(String gatewayId, String apiKey, SessionTransportTypeEnumVO transportType);
 
     /**
      * 删除回话

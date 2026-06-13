@@ -1,15 +1,6 @@
 package cn.bugstack.ai.api;
 
-import cn.bugstack.ai.api.dto.GatewayConfigRequestDTO;
-import cn.bugstack.ai.api.dto.GatewayConfigResponseDTO;
-import cn.bugstack.ai.api.dto.GatewayConfigDTO;
-import cn.bugstack.ai.api.dto.GatewayConfigQueryDTO;
-import cn.bugstack.ai.api.dto.GatewayToolConfigDTO;
-import cn.bugstack.ai.api.dto.GatewayAuthDTO;
-import cn.bugstack.ai.api.dto.GatewayAuthQueryDTO;
-import cn.bugstack.ai.api.dto.GatewayProtocolDTO;
-import cn.bugstack.ai.api.dto.GatewayProtocolQueryDTO;
-import cn.bugstack.ai.api.dto.GatewayToolQueryDTO;
+import cn.bugstack.ai.api.dto.*;
 import cn.bugstack.ai.api.response.Response;
 import cn.bugstack.ai.api.response.ResponsePage;
 import java.util.List;
@@ -55,5 +46,7 @@ public interface IAdminService {
     ResponsePage<List<GatewayAuthDTO>> queryGatewayAuthPage(GatewayAuthQueryDTO queryDTO);
 
     Response<GatewayConfigResponseDTO> deleteGatewayToolConfig(String gatewayId, Long toolId);
+
+    Response<GatewayLLMResponseDTO> testCallGateway(GatewayLLMRequestDTO requestDTO);
 
 }

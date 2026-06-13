@@ -18,7 +18,7 @@ thread:
 spring:
   datasource:
     username: root
-    password: 12345678
+    password: 123456
     url: jdbc:mysql://127.0.0.1:3306/ai_mcp_gateway_v2?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC&useSSL=true
     driver-class-name: com.mysql.cj.jdbc.Driver
   hikari:
@@ -35,10 +35,10 @@ spring:
   ai:
     openai:
       base-url: https://apis.itedus.cn
-      api-key: sk-HsACG4BSQyylsDco898a90Ce80Ec416b8b6057Ee9bB1D903
+      api-key: sk-z4UPrT0d1C63zG6I240623B689E5498b84B1732636EdC29e
       chat:
         options:
-          model: gpt-4.1-mini
+          model: gpt-4o
 
 # MyBatis 配置【如需使用记得打开】
 mybatis:

@@ -26,6 +26,10 @@ const API_ENDPOINTS = {
     // 获取网关认证列表
     GET_GATEWAY_AUTH_LIST: `${API_BASE_URL}/admin/query_gateway_auth_list`,
     GET_GATEWAY_AUTH_PAGE: `${API_BASE_URL}/admin/query_gateway_auth_page`,
+    // 根据网关ID精确查询认证 Key 列表
+    GET_GATEWAY_AUTH_LIST_BY_ID: `${API_BASE_URL}/admin/query_gateway_auth_list_by_gateway_id`,
+    // 根据网关ID精确查询认证 Key 列表
+    GET_GATEWAY_AUTH_LIST_BY_ID: `${API_BASE_URL}/admin/query_gateway_auth_list_by_gateway_id`,
     // 保存网关认证配置
     SAVE_GATEWAY_AUTH: `${API_BASE_URL}/admin/save_gateway_auth`,
     // 删除网关认证配置
@@ -36,7 +40,9 @@ const API_ENDPOINTS = {
     // 根据网关ID获取工具列表
     GET_GATEWAY_TOOL_LIST_BY_ID: `${API_BASE_URL}/admin/query_gateway_tool_list_by_gateway_id`,
     // 删除网关工具配置
-    DELETE_GATEWAY_TOOL: `${API_BASE_URL}/admin/delete_gateway_tool_config`
+    DELETE_GATEWAY_TOOL: `${API_BASE_URL}/admin/delete_gateway_tool_config`,
+    // 测试调用网关 LLM 服务
+    TEST_CALL_GATEWAY: `${API_BASE_URL}/admin/test_call_gateway`
 };
 
 // 模拟登录账号

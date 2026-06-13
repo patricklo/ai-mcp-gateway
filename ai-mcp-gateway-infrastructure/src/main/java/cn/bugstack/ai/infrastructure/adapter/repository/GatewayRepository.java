@@ -15,6 +15,9 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static cn.bugstack.ai.types.enums.ResponseCode.DB_UPDATE_FAIL;
 
 /**
@@ -97,6 +100,30 @@ public class GatewayRepository implements IGatewayRepository {
     @Override
     public void deleteGatewayToolConfig(Long toolId) {
         mcpGatewayToolDao.deleteByToolId(toolId);
+    }
+
+    @Override
+    public List<GatewayToolConfigVO> queryGatewayToolConfigList(String gatewayId) {
+        List<McpGatewayToolPO> mcpGatewayToolPOS = mcpGatewayToolDao.queryListByGatewayId(gatewayId);
+        List<GatewayToolConfigVO> list = new ArrayList<>();
+        if (null == mcpGatewayToolPOS || mcpGatewayToolPOS.isEmpty()) {
+            return list;
+        }
+
+        for (McpGatewayToolPO po : mcpGatewayToolPOS) {
+            list.add(GatewayToolConfigVO.builder()
+                    .gatewayId(po.getGatewayId())
+                    .toolId(po.getToolId())
+                    .toolName(po.getToolName())
+                    .toolType(po.getToolType())
+                    .toolDescription(po.getToolDescription())
+                    .toolVersion(po.getToolVersion())
+                    .protocolId(po.getProtocolId())
+                    .protocolType(po.getProtocolType())
+                    .build());
+        }
+
+        return list;
     }
 
 }

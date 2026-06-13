@@ -67,7 +67,311 @@ $(document).ready(function() {
             loadGatewayProtocolList();
         } else if (targetId === 'gateway-auth') {
             loadGatewayAuthList();
+        } else if (targetId === 'gateway-test') {
+            initGatewayTestPage();
         }
+    }
+
+    // 网关测试页初始化
+    function initGatewayTestPage() {
+        loadGatewayOptionsForTest();
+        loadAuthOptionsForTest();
+
+        // 重置超时时间
+        $(document).off('click', '#btn-reset-timeout').on('click', '#btn-reset-timeout', function() {
+            $('#test-timeout').val(3000);
+        });
+
+        // 重新加载按钮
+        $(document).off('click', '#refreshGatewayAndAuthBtn').on('click', '#refreshGatewayAndAuthBtn', function() {
+            loadGatewayOptionsForTest(true);
+        });
+
+        // 网关选择变化时，动态更新描述和是否展示 Auth Key
+        $(document).off('change', '#test-gatewayId').on('change', '#test-gatewayId', function() {
+            const gatewayId = $(this).val();
+            const selectedOption = $(this).find('option:selected');
+            const desc = selectedOption.data('desc') || '-';
+            const auth = selectedOption.data('auth');
+            $('#test-gatewayDesc').text(desc || '-');
+
+            if (auth === 1 || auth === '1') {
+                $('#auth-key-container').show();
+                loadAuthOptionsForTest(gatewayId);
+            } else {
+                $('#auth-key-container').hide();
+                $('#test-apiKey').empty().append('<option value="">无需认证</option>');
+            }
+        });
+
+        // 提交测试请求
+        $(document).off('submit', '#form-gateway-llm-test').on('submit', '#form-gateway-llm-test', function(e) {
+            e.preventDefault();
+
+            const gatewayId = $('#test-gatewayId').val();
+            const apiKey = $('#test-apiKey').val();
+            let timeout = parseInt($('#test-timeout').val(), 10) || 3000;
+            const reload = $('#test-reload').is(':checked') ? 1 : 0;
+            const message = $('#test-message').val().trim();
+
+            if (!gatewayId) {
+                showToast('请选择要测试的网关', false);
+                return;
+            }
+            if (!message) {
+                showToast('请输入请求消息', false);
+                return;
+            }
+
+            if (timeout < 1000) timeout = 1000;
+            if (timeout > 60000) timeout = 60000;
+            $('#test-timeout').val(timeout);
+
+            const $btn = $('#btn-send-test');
+            const originalHtml = $btn.html();
+            $btn.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>发送中...').prop('disabled', true);
+
+            const mcpType = $('input[name="mcpType"]:checked').val() || 'sse';
+
+            const requestBody = {
+                gatewayId: gatewayId,
+                authApiKey: apiKey || null,
+                timeout: timeout,
+                reload: reload,
+                message: message,
+                mcpType: mcpType
+            };
+
+            const startTime = Date.now();
+
+            $.ajax({
+                url: API_ENDPOINTS.TEST_CALL_GATEWAY,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(requestBody),
+                success: function(response) {
+                    const cost = Date.now() - startTime;
+                    $('#response-time').text(cost);
+
+                    if (response && response.code === '0000') {
+                        appendChatMessage('user', message);
+                        const answer = (response.data && (response.data.answer || response.data.content))
+                            ? (response.data.answer || response.data.content)
+                            : '[未返回 answer/content 字段]';
+                        appendChatMessage('assistant', answer);
+                        saveHistoryItem(gatewayId, message, true);
+                        showToast('调用成功！');
+                    } else {
+                        const errorMsg = response && response.info ? response.info : '未知错误';
+                        appendChatMessage('error', `调用失败：${errorMsg}`);
+                        saveHistoryItem(gatewayId, message, false);
+                        showToast(`调用失败：${errorMsg}`, false);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    const cost = Date.now() - startTime;
+                    $('#response-time').text(cost);
+                    appendChatMessage('error', `网络请求失败：${error}`);
+                    saveHistoryItem(gatewayId, message, false);
+                    showToast('网络请求失败：' + error, false);
+                },
+                complete: function() {
+                    $btn.html(originalHtml).prop('disabled', false);
+                }
+            });
+        });
+
+        // 快捷案例按钮
+        $(document).off('click', '.btn-quick-case').on('click', '.btn-quick-case', function() {
+            const message = $(this).data('message');
+            $('#test-message').val(message);
+        });
+
+        // 清空结果
+        $(document).off('click', '#btn-clear-result').on('click', '#btn-clear-result', function() {
+            $('#chat-window').empty();
+            $('#response-time').text('-');
+            $('#chat-window').append('<div class="text-center text-muted py-5" id="chat-empty-placeholder"><i class="bi bi-chat-square-text fs-3 d-block mb-2"></i>暂无对话记录，请配置参数后发送测试请求</div>');
+        });
+
+        // 历史记录相关
+        $(document).off('click', '#openHistoryBtn').on('click', '#openHistoryBtn', function() {
+            renderHistoryTable();
+            $('#historyModal').modal('show');
+        });
+
+        $(document).off('click', '#btn-clear-history').on('click', '#btn-clear-history', function() {
+            if (confirm('确定要清空所有历史记录吗？')) {
+                localStorage.removeItem('mcp_gateway_test_history');
+                renderHistoryTable();
+            }
+        });
+    }
+
+    // 加载测试页网关列表
+    function loadGatewayOptionsForTest(forceReload = false) {
+        const $select = $('#test-gatewayId');
+        $select.html('<option value="">加载网关列表中...</option>');
+
+        $.ajax({
+            url: API_ENDPOINTS.GET_GATEWAY_LIST,
+            type: 'GET',
+            success: function(response) {
+                if (response && response.code === '0000' && response.data) {
+                    let optionsHtml = '<option value="">请选择网关...</option>';
+                    response.data.forEach(function(gw) {
+                        optionsHtml += `<option value="${gw.gatewayId}" data-desc="${gw.gatewayDesc || ''}" data-auth="${gw.auth}">${gw.gatewayName} (${gw.gatewayId})</option>`;
+                    });
+                    $select.html(optionsHtml);
+                } else {
+                    $select.html('<option value="">加载失败，请重试</option>');
+                }
+            },
+            error: function() {
+                $select.html('<option value="">网络异常，无法加载网关列表</option>');
+            }
+        });
+    }
+
+    // 根据网关ID加载 Auth Key 列表
+    function loadAuthOptionsForTest(gatewayId) {
+        const $select = $('#test-apiKey');
+        $select.html('<option value="">加载认证 Key 中...</option>');
+
+        if (!gatewayId) {
+            $select.html('<option value="">请选择网关</option>');
+            return;
+        }
+
+        $.ajax({
+            // 使用按 gatewayId 精确查询的认证列表接口，避免分页带来的歧义
+            url: API_ENDPOINTS.GET_GATEWAY_AUTH_LIST_BY_ID,
+            type: 'GET',
+            data: { gatewayId: gatewayId },
+            success: function(response) {
+                if (response && response.code === '0000' && response.data) {
+                    let optionsHtml = '<option value="">请选择认证 Key...</option>';
+                    response.data.forEach(function(item) {
+                        optionsHtml += `<option value="${item.apiKey}">${item.apiKey}</option>`;
+                    });
+                    $select.html(optionsHtml);
+                } else {
+                    $select.html('<option value="">加载失败，请重试</option>');
+                }
+            },
+            error: function() {
+                $select.html('<option value="">网络异常，无法加载认证 Key</option>');
+            }
+        });
+    }
+
+    // 对话窗口追加消息
+    function appendChatMessage(role, content) {
+        const $window = $('#chat-window');
+        $('#chat-empty-placeholder').remove();
+
+        let icon = 'bi-person-circle';
+        let bgClass = 'bg-white';
+        let alignClass = '';
+        let title = '';
+
+        if (role === 'user') {
+            icon = 'bi-person-circle';
+            bgClass = 'bg-primary bg-opacity-10';
+            alignClass = 'text-end';
+            title = '请求';
+        } else if (role === 'assistant') {
+            icon = 'bi-robot';
+            bgClass = 'bg-white';
+            alignClass = 'text-start';
+            title = '响应';
+        } else {
+            icon = 'bi-exclamation-triangle';
+            bgClass = 'bg-danger bg-opacity-10';
+            alignClass = 'text-start';
+            title = '异常';
+        }
+
+        const timeStr = new Date().toLocaleTimeString();
+
+        const html = `
+            <div class="mb-3 ${alignClass}">
+                <div class="d-inline-block text-start p-3 rounded-3 shadow-sm ${bgClass}" style="max-width: 100%;">
+                    <div class="d-flex align-items-center mb-2 gap-2">
+                        <i class="bi ${icon}"></i>
+                        <span class="fw-bold small">${title}</span>
+                        <span class="text-muted small">${timeStr}</span>
+                    </div>
+                    <div class="chat-content" style="white-space: pre-wrap;">${$('<div>').text(content).html()}</div>
+                </div>
+            </div>
+        `;
+
+        $window.append(html);
+        $window.scrollTop($window[0].scrollHeight);
+    }
+
+    // 历史记录保存到 localStorage
+    function saveHistoryItem(gatewayId, message, success) {
+        const key = 'mcp_gateway_test_history';
+        let list = [];
+        try {
+            const raw = localStorage.getItem(key);
+            if (raw) list = JSON.parse(raw) || [];
+        } catch (e) {
+            list = [];
+        }
+
+        list.unshift({
+            time: Date.now(),
+            gatewayId: gatewayId,
+            message: message,
+            success: !!success
+        });
+
+        // 只保留最近 50 条
+        if (list.length > 50) {
+            list = list.slice(0, 50);
+        }
+
+        localStorage.setItem(key, JSON.stringify(list));
+    }
+
+    // 渲染历史记录表格
+    function renderHistoryTable() {
+        const key = 'mcp_gateway_test_history';
+        let list = [];
+        try {
+            const raw = localStorage.getItem(key);
+            if (raw) list = JSON.parse(raw) || [];
+        } catch (e) {
+            list = [];
+        }
+
+        const $tbody = $('#history-table-body');
+        if (!list || list.length === 0) {
+            $tbody.html('<tr><td colspan="4" class="text-center text-muted py-3">暂无历史记录</td></tr>');
+            return;
+        }
+
+        let html = '';
+        list.forEach(function(item) {
+            const timeStr = new Date(item.time).toLocaleString();
+            const statusBadge = item.success
+                ? '<span class="badge bg-success">成功</span>'
+                : '<span class="badge bg-danger">失败</span>';
+
+            html += `
+                <tr>
+                    <td>${timeStr}</td>
+                    <td><code>${item.gatewayId}</code></td>
+                    <td class="text-truncate" style="max-width: 260px;" title="${item.message}">${item.message}</td>
+                    <td>${statusBadge}</td>
+                </tr>
+            `;
+        });
+
+        $tbody.html(html);
     }
 
     // 初始加载 Dashboard
@@ -450,6 +754,50 @@ $(document).ready(function() {
         }
     });
 
+    // 复制 Streamable HTTP 地址
+    $(document).on('click', '.btn-copy-gateway-url-http', function() {
+        const gatewayId = $(this).data('gateway-id');
+        const httpUrl = `${API_BASE_URL}/${gatewayId}/mcp`;
+
+        if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(httpUrl).then(() => {
+                showToast('网关 Streamable HTTP 地址已复制到剪贴板！');
+            }).catch(err => {
+                console.error('无法复制文本: ', err);
+                showToast('复制失败，请手动复制', false);
+            });
+        } else {
+            // Fallback
+            const textArea = document.createElement("textarea");
+            textArea.value = httpUrl;
+            textArea.style.position = "fixed";
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.width = "2em";
+            textArea.style.height = "2em";
+            textArea.style.padding = "0";
+            textArea.style.border = "none";
+            textArea.style.outline = "none";
+            textArea.style.boxShadow = "none";
+            textArea.style.background = "transparent";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if(successful) {
+                    showToast('网关 Streamable HTTP 地址已复制到剪贴板！');
+                } else {
+                    showToast('复制失败，请手动复制', false);
+                }
+            } catch (err) {
+                console.error('无法复制文本: ', err);
+                showToast('复制失败，请手动复制', false);
+            }
+            document.body.removeChild(textArea);
+        }
+    });
+
     // 分页状态
     let gatewayCurrentPage = 1;
     const gatewayPageSize = 10;
@@ -536,7 +884,8 @@ $(document).ready(function() {
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <code>${item.gatewayId || '-'}</code>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-copy-gateway-url border-0" data-gateway-id="${item.gatewayId}" title="复制网关 SSE 地址"><i class="bi bi-clipboard"></i></button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-copy-gateway-url border-0" data-gateway-id="${item.gatewayId}" title="复制 SSE 地址" style="min-width:36px">SSE</button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary btn-copy-gateway-url-http border-0" data-gateway-id="${item.gatewayId}" title="复制 Streamable HTTP 地址" style="min-width:36px">HTTP</button>
                                         </div>
                                     </td>
                                     <td class="fw-bold">${item.gatewayName || '-'}</td>

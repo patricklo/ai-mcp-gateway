@@ -10,6 +10,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.RateLimiter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
@@ -37,7 +38,7 @@ public class AuthRateLimitService implements IAuthRateLimitService {
         String gatewayId = commandEntity.getGatewayId();
         String apiKey = commandEntity.getApiKey();
 
-        if (null == apiKey || apiKey.isEmpty()) return false;
+        if (StringUtils.isBlank(apiKey)) return false;
 
         try {
             // 1. 获取限流组件

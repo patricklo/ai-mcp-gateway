@@ -148,6 +148,18 @@ public class AdminRepository implements IAdminRepository {
     }
 
     @Override
+    public List<GatewayAuthConfigEntity> queryGatewayAuthListByGatewayId(String gatewayId) {
+        // 直接按网关ID过滤认证配置，不做业务逻辑判断
+        List<McpGatewayAuthPO> pos = mcpGatewayAuthDao.queryListByGatewayId(gatewayId);
+        return pos.stream().map(po -> GatewayAuthConfigEntity.builder()
+                .gatewayId(po.getGatewayId())
+                .apiKey(po.getApiKey())
+                .rateLimit(po.getRateLimit())
+                .expireTime(po.getExpireTime())
+                .build()).collect(Collectors.toList());
+    }
+
+    @Override
     public GatewayAuthPageEntity queryGatewayAuthPage(GatewayAuthQueryEntity queryEntity) {
         McpGatewayAuthPO query = new McpGatewayAuthPO();
         query.setGatewayId(queryEntity.getGatewayId());

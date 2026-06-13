@@ -1,6 +1,9 @@
 package cn.bugstack.ai.domain.gateway.service;
 
 import cn.bugstack.ai.domain.gateway.model.entity.GatewayToolConfigCommandEntity;
+import cn.bugstack.ai.domain.gateway.model.valobj.GatewayToolConfigVO;
+
+import java.util.List;
 
 /**
  * 网关工具配置服务接口
@@ -15,5 +18,7 @@ public interface IGatewayToolConfigService {
     void updateGatewayToolProtocol(GatewayToolConfigCommandEntity commandEntity);
 
     void deleteGatewayToolConfig(Long toolId);
+
+    List<GatewayToolConfigVO> queryGatewayToolConfigList(String gatewayId);
 
 }

@@ -26,6 +26,11 @@ public interface IMcpGatewayAuthDao {
 
     Long queryAuthListCount(McpGatewayAuthPO query);
 
+    /**
+     * 根据网关ID精确查询该网关下的所有认证记录
+     */
+    List<McpGatewayAuthPO> queryListByGatewayId(String gatewayId);
+
     McpGatewayAuthPO queryMcpGatewayAuthPO(McpGatewayAuthPO req);
 
     int queryEffectiveGatewayAuthCount(String gatewayId);

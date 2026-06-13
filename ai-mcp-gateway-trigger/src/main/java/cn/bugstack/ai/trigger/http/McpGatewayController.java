@@ -1,22 +1,15 @@
 package cn.bugstack.ai.trigger.http;
 
 import cn.bugstack.ai.api.IMcpGatewayService;
+import cn.bugstack.ai.api.response.Response;
 import cn.bugstack.ai.cases.mcp.IMcpMessageService;
 import cn.bugstack.ai.cases.mcp.IMcpSessionService;
 import cn.bugstack.ai.domain.session.model.entity.HandleMessageCommandEntity;
-import cn.bugstack.ai.domain.session.model.valobj.McpSchemaVO;
-import cn.bugstack.ai.domain.session.model.valobj.SessionConfigVO;
-import cn.bugstack.ai.domain.session.service.ISessionManagementService;
-import cn.bugstack.ai.domain.session.service.ISessionMessageService;
 import cn.bugstack.ai.types.enums.ResponseCode;
-import cn.bugstack.ai.api.response.Response;
 import cn.bugstack.ai.types.exception.AppException;
 import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
@@ -25,6 +18,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.Resource;
+import java.util.UUID;
 
 /**
  * MCP 网关服务接口管理
@@ -38,11 +32,11 @@ import javax.annotation.Resource;
 @RequestMapping("/")
 public class McpGatewayController implements IMcpGatewayService {
 
-    @Resource
+    @Resource(name = "mcpSSESessionService")
     private IMcpSessionService mcpSessionService;
 
-    @Resource
-    private IMcpMessageService mcpMessageService;
+    @Resource(name = "mcpSSEMessageService")
+    private IMcpMessageService<Void> mcpMessageService;
 
     /**
      * 处理 sse 连接，创建会话
@@ -56,7 +50,7 @@ public class McpGatewayController implements IMcpGatewayService {
     @GetMapping(value = "{gatewayId}/mcp/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Override
     public Flux<ServerSentEvent<String>> handleSseConnection(
-            @PathVariable("gatewayId") String gatewayId, @RequestParam("api_key") String apiKey) throws Exception {
+            @PathVariable("gatewayId") String gatewayId, @RequestParam(value = "api_key", required = false, defaultValue = "") String apiKey) throws Exception {
         try {
             log.info("建立 MCP SSE 连接，gatewayId:{}", gatewayId);
             if (StringUtils.isBlank(gatewayId)) {
@@ -106,7 +100,7 @@ public class McpGatewayController implements IMcpGatewayService {
     @PostMapping(value = "{gatewayId}/mcp/sse", consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<Void>> handleMessage(@PathVariable("gatewayId") String gatewayId,
                                                     @RequestParam("sessionId") String sessionId,
-                                                    @RequestParam("api_key") String apiKey,
+                                                    @RequestParam(value = "api_key", required = false, defaultValue = "") String apiKey,
                                                     @RequestBody String messageBody) {
         try {
             log.info("处理 MCP SSE 消息，gatewayId:{} apiKey:{} sessionId:{} messageBody:{}", gatewayId, apiKey, sessionId, messageBody);
